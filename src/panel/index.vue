@@ -1,31 +1,27 @@
 <template>
   <div class="panel">
-    Hi, {{ msg }}
-    <CCButton @click="onClickBtn">btn click-{{ count }}</CCButton>
+    <div class="view-root ccui-scrollbar">
+      <ExportConfig></ExportConfig>
+    </div>
+
+    <div class="layout horizontal center justified">
+      <CCButton @confirm="onBtnClickGen">生成</CCButton>
+    </div>
   </div>
 </template>
+
 <script lang="ts">
-import { defineComponent, onMounted, ref, provide, nextTick } from 'vue';
-import PluginConfig from '../../cc-plugin.config';
-import ccui from '@xuyanfeng/cc-ui';
-const { CCInput, CCButton } = ccui.components;
+import { defineComponent, onMounted, ref, provide, nextTick } from "vue";
+import PluginConfig from "../../cc-plugin.config";
+import ccui from "@xuyanfeng/cc-ui";
+import ExportConfig from "./export-config.vue";
+const { CCInput, CCButton, CCProp, CCSection, CCCheckBox } = ccui.components;
 export default defineComponent({
-  name: 'index',
-  components: { CCButton },
-  setup(props, { emit }) {
-    onMounted(() => {
-      console.log('hi ~~~');
-    });
-    const msg = ref(PluginConfig.manifest.name);
-    const count = ref(0);
-    return {
-      msg,
-      count,
-      onClickBtn() {
-        count.value++;
-        console.log('click btn');
-      },
-    };
+  name: "index",
+  components: { CCButton, CCInput, CCProp, CCSection, CCCheckBox, ExportConfig },
+  setup() {
+    const logView = ref("");
+    return { logView, onBtnClickGen() {} };
   },
 });
 </script>
@@ -34,5 +30,14 @@ export default defineComponent({
 .panel {
   display: flex;
   flex-direction: column;
+  height: 100%;
+  width: 100%;
+  .view-root {
+    flex: 1;
+    padding: 10px;
+    padding-top: 0px;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
 }
 </style>
