@@ -40,6 +40,25 @@ export class ConfigData {
    * 导出JavaScript
    */
   exportJs: boolean;
+
+  /**
+   * js保存路径
+   */
+  js_save_path: string;
+  /**
+   * 合并js
+   */
+  js_merge: boolean;
+
+  /**
+   * 合并后的js文件名
+   */
+  js_file_name: string;
+
+  /**
+   * 格式化js
+   */
+  js_format: boolean;
   /**
    * 导出Lua
    */

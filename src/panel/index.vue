@@ -1,7 +1,8 @@
 <template>
   <div class="panel">
     <div class="view-root ccui-scrollbar">
-      <ConfigJson></ConfigJson>
+      <ConfigJs></ConfigJs>
+      <!-- <ConfigJson></ConfigJson> -->
       <!-- <ExportConfig></ExportConfig> -->
     </div>
 
@@ -17,10 +18,11 @@ import PluginConfig from "../../cc-plugin.config";
 import ccui from "@xuyanfeng/cc-ui";
 import ExportConfig from "./export-config.vue";
 import ConfigJson from "./config-json.vue";
+import ConfigJs from "./config-js.vue";
 const { CCInput, CCButton, CCProp, CCSection, CCCheckBox } = ccui.components;
 export default defineComponent({
   name: "index",
-  components: { CCButton, CCInput, CCProp, CCSection, CCCheckBox, ExportConfig, ConfigJson },
+  components: { CCButton, CCInput, CCProp, CCSection, CCCheckBox, ExportConfig, ConfigJson, ConfigJs },
   setup() {
     const logView = ref("");
     return { logView, onBtnClickGen() {} };
