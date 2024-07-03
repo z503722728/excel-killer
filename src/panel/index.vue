@@ -21,12 +21,14 @@ import ExportConfig from "./export-config.vue";
 import ConfigJson from "./config-json.vue";
 import ConfigJs from "./config-js.vue";
 import Excel from "./excel.vue";
+import { appStore } from "./store";
 const { CCInput, CCButton, CCProp, CCSection, CCCheckBox } = ccui.components;
 export default defineComponent({
   name: "index",
   components: { Excel, CCButton, CCInput, CCProp, CCSection, CCCheckBox, ExportConfig, ConfigJson, ConfigJs },
   setup() {
     const logView = ref("");
+    appStore().init();
     return { logView, onBtnClickGen() {} };
   },
 });
