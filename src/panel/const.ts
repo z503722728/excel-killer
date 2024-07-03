@@ -1,7 +1,7 @@
 export interface ItemData {
   name: string;
   sheet: string;
-  isUse: string;
+  isUse: boolean;
 }
 export class ConfigData {
   /**
@@ -63,4 +63,9 @@ export class ConfigData {
    * 导出Lua
    */
   exportLua: boolean;
+
+  /**
+   * excel根目录
+   */
+  excel_root_path: string;
 }

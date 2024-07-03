@@ -1,21 +1,21 @@
 <template>
   <div class="item" style="">
-    <div class="box flex-1">
-      <ui-checkbox v-bind:checked="data.isUse" @:change="onBtnClickUse">
-        {{ index + 1 }}
-      </ui-checkbox>
+    <div class="box">
+      <CCCheckBox :value="data.isUse" @:onChange="onBtnClickUse"> {{ index + 1 }} </CCCheckBox>
     </div>
     <div class="box">{{ data.name }}</div>
     <div class="box">{{ data.sheet }}</div>
   </div>
-  <hr style="margin: 1px 0 1px 0" />
 </template>
 
 <script lang="ts">
 import { PropType, defineComponent, ref } from "vue";
 import { ItemData } from "./const";
+import ccui from "@xuyanfeng/cc-ui";
+const { CCCheckBox } = ccui.components;
 export default defineComponent({
   name: "excel-item",
+  components: { CCCheckBox },
   props: {
     index: {
       type: Number,
@@ -45,6 +45,7 @@ export default defineComponent({
 
 <style scoped lang="less">
 .item {
+  color: white;
   display: flex;
   flex-direction: row;
   align-items: center;

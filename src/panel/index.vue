@@ -1,7 +1,8 @@
 <template>
   <div class="panel">
     <div class="view-root ccui-scrollbar">
-      <ConfigJs></ConfigJs>
+      <!-- <ConfigJs></ConfigJs> -->
+      <Excel></Excel>
       <!-- <ConfigJson></ConfigJson> -->
       <!-- <ExportConfig></ExportConfig> -->
     </div>
@@ -19,10 +20,11 @@ import ccui from "@xuyanfeng/cc-ui";
 import ExportConfig from "./export-config.vue";
 import ConfigJson from "./config-json.vue";
 import ConfigJs from "./config-js.vue";
+import Excel from "./excel.vue";
 const { CCInput, CCButton, CCProp, CCSection, CCCheckBox } = ccui.components;
 export default defineComponent({
   name: "index",
-  components: { CCButton, CCInput, CCProp, CCSection, CCCheckBox, ExportConfig, ConfigJson, ConfigJs },
+  components: { Excel, CCButton, CCInput, CCProp, CCSection, CCCheckBox, ExportConfig, ConfigJson, ConfigJs },
   setup() {
     const logView = ref("");
     return { logView, onBtnClickGen() {} };
