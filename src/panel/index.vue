@@ -1,7 +1,8 @@
 <template>
   <div class="panel">
     <div class="view-root ccui-scrollbar">
-      <ExportConfig></ExportConfig>
+      <ConfigJson></ConfigJson>
+      <!-- <ExportConfig></ExportConfig> -->
     </div>
 
     <div class="layout horizontal center justified">
@@ -15,10 +16,11 @@ import { defineComponent, onMounted, ref, provide, nextTick } from "vue";
 import PluginConfig from "../../cc-plugin.config";
 import ccui from "@xuyanfeng/cc-ui";
 import ExportConfig from "./export-config.vue";
+import ConfigJson from "./config-json.vue";
 const { CCInput, CCButton, CCProp, CCSection, CCCheckBox } = ccui.components;
 export default defineComponent({
   name: "index",
-  components: { CCButton, CCInput, CCProp, CCSection, CCCheckBox, ExportConfig },
+  components: { CCButton, CCInput, CCProp, CCSection, CCCheckBox, ExportConfig, ConfigJson },
   setup() {
     const logView = ref("");
     return { logView, onBtnClickGen() {} };

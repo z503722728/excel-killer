@@ -1,5 +1,10 @@
 import { defineStore } from "pinia";
-
+import { ConfigData } from "./const";
+import { ref } from "vue";
 export const appStore = defineStore("app", () => {
-  return {};
+  const config = ref<ConfigData>(new ConfigData());
+  return {
+    config,
+    save() {},
+  };
 });
