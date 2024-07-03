@@ -42,6 +42,8 @@ import { storeToRefs } from "pinia";
 import { appStore } from "./store";
 import { existsSync } from "fs";
 import { join } from "path";
+import { dirClientName, dirServerName } from "./const";
+import { _importJsonCfg } from "./util";
 const { CCInput, CCButton, CCButtonGroup, CCProp, CCSection, CCCheckBox } = ccui.components;
 export default defineComponent({
   name: "index",
@@ -108,8 +110,12 @@ export default defineComponent({
           return;
         }
       },
-      onBtnClickImportProjectJsonCfg_Server() {},
-      onBtnClickImportProjectJsonCfg_Client() {},
+      onBtnClickImportProjectJsonCfg_Server() {
+        _importJsonCfg("server");
+      },
+      onBtnClickImportProjectJsonCfg_Client() {
+        _importJsonCfg("client");
+      },
     };
   },
 });

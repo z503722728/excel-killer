@@ -27,6 +27,7 @@ import { appStore } from "./store";
 import { existsSync } from "fs";
 import { join } from "path";
 import CCP from "cc-plugin/src/ccp/entry-render";
+import { dirClientName, dirServerName } from "./const";
 const { CCInput, CCButton, CCProp, CCSection, CCCheckBox } = ccui.components;
 export default defineComponent({
   name: "index",

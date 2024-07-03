@@ -22,6 +22,11 @@ import ConfigJson from "./config-json.vue";
 import ConfigJs from "./config-js.vue";
 import Excel from "./excel.vue";
 import { appStore } from "./store";
+import { existsSync, mkdirSync } from "fs";
+import chokidar from "chokidar";
+import CCP from "cc-plugin/src/ccp/entry-main";
+import { join } from "path";
+import { dirClientName, dirServerName } from "./const";
 const { CCInput, CCButton, CCProp, CCSection, CCCheckBox } = ccui.components;
 export default defineComponent({
   name: "index",
@@ -29,6 +34,58 @@ export default defineComponent({
   setup() {
     const logView = ref("");
     appStore().init();
+    function _initCfgSavePath() {
+      let projectPath = CCP.Adaptation.Project.path;
+      let pluginResPath = join(projectPath, "plugin-resource");
+      if (!existsSync(pluginResPath)) {
+        mkdirSync(pluginResPath);
+      }
+
+      let pluginResPath1 = join(pluginResPath, "json");
+      if (!existsSync(pluginResPath1)) {
+        mkdirSync(pluginResPath1);
+      }
+      this.jsonSavePath = pluginResPath1;
+      _initCSDir(this.jsonSavePath);
+
+      let pluginResPath2 = join(pluginResPath, "js");
+      if (!existsSync(pluginResPath2)) {
+        mkdirSync(pluginResPath2);
+      }
+      this.jsSavePath = pluginResPath2;
+      _initCSDir(this.jsSavePath);
+    }
+    // 初始化client-server目录
+    function _initCSDir(saveDir) {
+      let clientDir = join(saveDir, dirClientName);
+      if (!existsSync(clientDir)) {
+        mkdirSync(clientDir);
+      }
+      let serverDir = join(saveDir, dirServerName);
+      if (!existsSync(serverDir)) {
+        mkdirSync(serverDir);
+      }
+    }
+    function _initPluginCfg() {
+      const excelRootPath = appStore().config.excel_root_path;
+      if (existsSync(this.excelRootPath)) {
+        this._onAnalyzeExcelDirPath(this.excelRootPath);
+        chokidar
+          .watch(this.excelRootPath, {
+            usePolling: true,
+            // interval: 1000,
+            // awaitWriteFinish: {
+            //     stabilityThreshold: 2000,
+            //     pollInterval: 100
+            // },
+          })
+          .on("all", this._watchDir.bind(this));
+      }
+
+      this.checkJsFileExist();
+      this.checkJsonAllCfgFileExist();
+      _initCfgSavePath(); // 默认json路径
+    }
     return { logView, onBtnClickGen() {} };
   },
 });
