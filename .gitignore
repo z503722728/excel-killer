@@ -1,0 +1,5 @@
+cc-plugin.json
+yalc.lock
+node_modules/
+web/
+dist/
