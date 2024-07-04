@@ -1,7 +1,9 @@
 import { emptyDirSync, existsSync, writeFileSync } from "fs-extra";
 import { join } from "path";
-import { dirClientName, dirServerName } from "./const";
+import { ConfigData, DirClientName, DirServerName, ItemData } from "./const";
 import nodeXlsx from "node-xlsx";
+import CCP from "cc-plugin/src/ccp/entry-render";
+import { appStore } from "./store";
 export class Gen {
   private isJsFileExist: boolean = false;
   private isMergeJson: boolean = false;
@@ -15,14 +17,37 @@ export class Gen {
   private jsonSavePath: string = "";
   private isExportJs: boolean = false;
   private isMergeJavaScript: boolean = false;
-  public excelArray: any[] = [];
   private _addLog(log: string) {
     throw new Error(log);
   }
-  private check() {
-    // 参数校验
-    if (this.excelArray.length <= 0) {
-      throw new Error("未发现要生成的配置!");
+  public ready(cfg: ConfigData) {
+    this.isMergeJson = cfg.json_merge;
+    this.jsonAllCfgFileName = cfg.json_all_cfg_file_name;
+
+    this.isMergeJavaScript = cfg.js_merge;
+    this.jsFileName = cfg.js_file_name;
+
+    this.isExportServer = cfg.exportServer;
+    this.isExportClient = cfg.exportClient;
+
+    this.isExportJson = cfg.exportJson;
+    this.isExportJs = cfg.exportJs;
+
+    this.jsSavePath = cfg.js_save_path;
+    this.jsonSavePath = cfg.json_save_path;
+
+    this.isFormatJsCode = cfg.js_format;
+    this.isFormatJson = cfg.json_format;
+  }
+  public check() {
+    if (CCP.Adaptation.Env.isPlugin) {
+      if (!this.jsSavePath || !existsSync(this.jsSavePath)) {
+        throw new Error(`invalid js save path: ${this.jsSavePath}`);
+      }
+
+      if (!this.jsonSavePath || !existsSync(this.jsonSavePath)) {
+        throw new Error(`invalid json save path: ${this.jsonSavePath}`);
+      }
     }
 
     if (this.isMergeJson) {
@@ -35,7 +60,6 @@ export class Gen {
         throw new Error("请输入要保存的js文件名!");
       }
     }
-    // TODO
     if (this.isExportServer === false && this.isExportClient === false) {
       throw new Error("请选择要导出的目标!");
     }
@@ -44,141 +68,148 @@ export class Gen {
       throw new Error("请选择要导出的类型!");
     }
   }
+  private jsonAllClientData = {}; // 保存客户端的json数据
+  private jsonAllServerData = {}; // 保存服务端的json数据
+  private jsAllClientData = {}; // 保存客户端的js数据
+  private jsAllServerData = {}; // 保存服务端的js数据
   doWork(data: ItemData[]) {
-    this.check();
+    debugger;
     // 删除老的配置
-    const jsonSavePath1 = join(this.jsonSavePath, dirClientName);
-    const jsonSavePath2 = join(this.jsonSavePath, dirServerName);
-    emptyDirSync(jsonSavePath1);
-    emptyDirSync(jsonSavePath2);
-
-    const jsSavePath1 = join(this.jsSavePath, dirClientName);
-    const jsSavePath2 = join(this.jsSavePath, dirServerName);
-    emptyDirSync(jsSavePath1);
-    emptyDirSync(jsSavePath2);
-
-    const jsonAllSaveDataClient = {}; // 保存客户端的json数据
-    const jsonAllSaveDataServer = {}; // 保存服务端的json数据
-
-    const jsAllSaveDataClient = {}; // 保存客户端的js数据
-    const jsAllSaveDataServer = {}; // 保存服务端的js数据
-
-    for (const k in this.excelArray) {
-      const itemSheet = this.excelArray[k];
-      if (itemSheet.isUse) {
-        const excelData = nodeXlsx.parse(itemSheet.fullPath);
-        let sheetData = null;
-        for (const j in excelData) {
-          if (excelData[j].name === itemSheet.sheet) {
-            sheetData = excelData[j].data;
-          }
-        }
-        if (sheetData) {
-          if (sheetData.length > 3) {
-            if (this.isExportJson) {
-              // 保存为json
-              const writeFileJson = function (pathSave, isClient) {
-                const jsonSaveData = this._getJsonSaveData(sheetData, itemSheet, isClient);
-                if (Object.keys(jsonSaveData).length > 0) {
-                  if (this.isMergeJson) {
-                    if (isClient) {
-                      // 检测重复问题
-                      if (jsonAllSaveDataClient[itemSheet.sheet] === undefined) {
-                        jsonAllSaveDataClient[itemSheet.sheet] = jsonSaveData;
-                      } else {
-                        this._addLog("发现重名sheet:" + itemSheet.name + "(" + itemSheet.sheet + ")");
-                      }
-                    } else {
-                      // 检测重复问题
-                      if (jsonAllSaveDataServer[itemSheet.sheet] === undefined) {
-                        jsonAllSaveDataServer[itemSheet.sheet] = jsonSaveData;
-                      } else {
-                        this._addLog("发现重名sheet:" + itemSheet.name + "(" + itemSheet.sheet + ")");
-                      }
-                    }
-                  } else {
-                    const saveFileFullPath = join(pathSave, itemSheet.sheet + ".json");
-                    this._onSaveJsonCfgFile(jsonSaveData, saveFileFullPath);
-                  }
-                }
-              }.bind(this);
-              if (this.isExportClient) writeFileJson(jsonSavePath1, true);
-              if (this.isExportServer) writeFileJson(jsonSavePath2, false);
-            }
-            if (this.isExportJs) {
-              // 保存为js
-              const writeFileJs = function (savePath, isClient) {
-                const sheetJsData = this._getJavaScriptSaveData(sheetData, itemSheet, isClient);
-                if (Object.keys(sheetJsData).length > 0) {
-                  if (this.isMergeJavaScript) {
-                    if (isClient) {
-                      // 检测重复问题
-                      if (jsAllSaveDataClient[itemSheet.sheet] === undefined) {
-                        jsAllSaveDataClient[itemSheet.sheet] = sheetJsData;
-                      } else {
-                        this._addLog("发现重名sheet:" + itemSheet.name + "(" + itemSheet.sheet + ")");
-                      }
-                    } else {
-                      // 检测重复问题
-                      if (jsAllSaveDataServer[itemSheet.sheet] === undefined) {
-                        jsAllSaveDataServer[itemSheet.sheet] = sheetJsData;
-                      } else {
-                        this._addLog("发现重名sheet:" + itemSheet.name + "(" + itemSheet.sheet + ")");
-                      }
-                    }
-                  } else {
-                    // 保存js配置
-                    const fileNameFullPath = join(savePath, itemSheet.sheet + ".js");
-                    this._onSaveJavaScriptCfgFile(fileNameFullPath, sheetJsData);
-                  }
-                }
-              }.bind(this);
-              if (this.isExportClient) writeFileJs(jsSavePath1, true);
-              if (this.isExportServer) writeFileJs(jsSavePath2, false);
-            }
-          } else {
-            this._addLog("行数低于3行,无效sheet:" + itemSheet.sheet);
-          }
-        } else {
-          this._addLog("未发现数据");
-        }
-      } else {
-        console.log("忽略配置: " + itemSheet.fullPath + " - " + itemSheet.sheet);
-      }
+    const jsonClient = join(this.jsonSavePath, DirClientName);
+    const jsonServer = join(this.jsonSavePath, DirServerName);
+    const jsClient = join(this.jsSavePath, DirClientName);
+    const jsServer = join(this.jsSavePath, DirServerName);
+    if (CCP.Adaptation.Env.isPlugin) {
+      emptyDirSync(jsonClient);
+      emptyDirSync(jsonServer);
+      emptyDirSync(jsClient);
+      emptyDirSync(jsServer);
     }
+
+    for (let k = 0; k < data.length; k++) {
+      const itemSheet = data[k];
+      if (!itemSheet.isUse) {
+        console.log(`ignore sheet: ${itemSheet.sheet} in ${itemSheet.fullPath}`);
+        continue;
+      }
+
+      const sheetData = itemSheet.buffer;
+      if (!sheetData) {
+        throw new Error(`not find any data in sheet: ${itemSheet.sheet}`);
+      }
+
+      if (sheetData.length <= 3) {
+        throw new Error(`row count less than 3, invalid sheet: ${itemSheet.sheet}`);
+      }
+      this.parseJsonData(itemSheet);
+      this.parseJavaScriptData(itemSheet);
+    }
+    // this.saveJson(itemSheet, jsonClient, true);
+
     // =====================>>>>  合并json文件   <<<=================================
     if (this.isExportJson && this.isMergeJson) {
       if (this.isExportClient) {
-        const saveFileFullPath = join(jsonSavePath1, this.jsonAllCfgFileName + ".json");
-        this._onSaveJsonCfgFile(jsonAllSaveDataClient, saveFileFullPath);
+        const saveFileFullPath = join(jsonClient, this.jsonAllCfgFileName + ".json");
+        this._onSaveJsonCfgFile(this.jsonAllClientData, saveFileFullPath);
       }
       if (this.isExportServer) {
-        const saveFileFullPath = join(jsonSavePath2, this.jsonAllCfgFileName + ".json");
-        this._onSaveJsonCfgFile(jsonAllSaveDataServer, saveFileFullPath);
+        const saveFileFullPath = join(jsonServer, this.jsonAllCfgFileName + ".json");
+        this._onSaveJsonCfgFile(this.jsonAllServerData, saveFileFullPath);
       }
       this.checkJsonAllCfgFileExist();
     }
     // =====================>>>>  合并js文件   <<<=================================
     if (this.isExportJs && this.isMergeJavaScript) {
       if (this.isExportClient) {
-        this._onSaveJavaScriptCfgFile(join(jsSavePath1, this.jsFileName + ".js"), jsAllSaveDataClient);
+        this._onSaveJavaScriptCfgFile(join(jsClient, this.jsFileName + ".js"), this.jsAllClientData);
       }
       if (this.isExportServer) {
-        this._onSaveJavaScriptCfgFile(join(jsSavePath2, this.jsFileName + ".js"), jsAllSaveDataServer);
+        this._onSaveJavaScriptCfgFile(join(jsServer, this.jsFileName + ".js"), this.jsAllServerData);
       }
 
       this.checkJsFileExist();
     }
 
-    this._addLog("全部转换完成!");
+    return;
   }
-  _getJsonSaveData(excelData, itemSheet, isClient) {
+  private saveJson(itemSheet: ItemData, dir: string, isClient: boolean) {
+    const { sheet, name } = itemSheet;
+    const saveFileFullPath = join(dir, sheet + ".json");
+    if (this.isMergeJson) {
+      const data = isClient ? this.jsonAllClientData : this.jsonAllServerData;
+      this._onSaveJsonCfgFile(data, saveFileFullPath);
+    } else {
+      if (isClient) {
+        for (const key in this.jsonAllClientData) {
+          const data = this.jsonAllClientData[key];
+          this._onSaveJsonCfgFile(data, saveFileFullPath);
+        }
+      } else {
+        for (const key in this.jsonAllServerData) {
+          const data = this.jsonAllServerData[key];
+          this._onSaveJsonCfgFile(data, saveFileFullPath);
+        }
+      }
+    }
+  }
+  private flushData(sheet: string, all: any, data: any) {
+    if (Object.keys(data).length > 0) {
+      if (all[sheet] === undefined) {
+        all[sheet] = data;
+      } else {
+        this._addLog("发现重名sheet:" + name + "(" + sheet + ")");
+      }
+    }
+  }
+  private parseJsonData(itemSheet: ItemData) {
+    const { sheet, name } = itemSheet;
+    const { client, server } = this.splitData(itemSheet);
+    this.flushData(sheet, this.jsonAllClientData, client);
+    this.flushData(sheet, this.jsonAllServerData, server);
+  }
+  private parseJavaScriptData(itemSheet: ItemData) {
+    let savePath, isClient;
+    // const sheetJsData = this._getJavaScriptSaveData(sheetData, itemSheet, isClient);
+    // if (Object.keys(sheetJsData).length > 0) {
+    //   if (this.isMergeJavaScript) {
+    //     if (isClient) {
+    //       // 检测重复问题
+    //       if (jsAllSaveDataClient[itemSheet.sheet] === undefined) {
+    //         jsAllSaveDataClient[itemSheet.sheet] = sheetJsData;
+    //       } else {
+    //         this._addLog("发现重名sheet:" + itemSheet.name + "(" + itemSheet.sheet + ")");
+    //       }
+    //     } else {
+    //       // 检测重复问题
+    //       if (jsAllSaveDataServer[itemSheet.sheet] === undefined) {
+    //         jsAllSaveDataServer[itemSheet.sheet] = sheetJsData;
+    //       } else {
+    //         this._addLog("发现重名sheet:" + itemSheet.name + "(" + itemSheet.sheet + ")");
+    //       }
+    //     }
+    //   } else {
+    //     // 保存js配置
+    //     const fileNameFullPath = join(savePath, itemSheet.sheet + ".js");
+    //     this._onSaveJavaScriptCfgFile(fileNameFullPath, sheetJsData);
+    //   }
+    // }
+  }
+  private isServerField(str: string) {
+    return str.indexOf("s") !== -1;
+  }
+  private isClientField(str: string) {
+    return str.indexOf("c") !== -1;
+  }
+  private splitData(itemSheet: ItemData): { server: any; client: any } {
+    const excelData: any[][] = itemSheet.buffer;
     const title = excelData[0];
     const desc = excelData[1];
+    /**
+     * 是客户端还是服务器
+     */
     const target = excelData[2];
     const ruleText = excelData[3];
-    let ret = null;
-
+    const ret = { server: {}, client: {} };
     const useFormat1 = false;
     if (useFormat1) {
       const saveData1 = []; // 格式1:对应的为数组
@@ -235,59 +266,38 @@ export class Gen {
       ret = saveData1;
     } else {
       const saveData2 = {}; // 格式2:id作为索引
-      for (let i = 4; i < excelData.length; i++) {
-        const lineData = excelData[i];
+      for (let line = 4; line < excelData.length; line++) {
+        const lineData = excelData[line];
+        const id = lineData[0];
         if (lineData.length !== title.length) {
-          this._addLog(`配置表头和配置数据不匹配:${itemSheet.name} - ${itemSheet.sheet} : 第${i + 1}行`);
+          this._addLog(`配置表头和配置数据不匹配:${itemSheet.name} - ${itemSheet.sheet} : 第${line + 1}行`);
           this._addLog("跳过该行数据");
           continue;
         }
 
-        const saveLineData = {};
-        let canExport = false;
-
+        const saveLineData = { server: {}, client: {} };
         // todo 将ID字段也加入到data中
-        for (let j = 0; j < title.length; j++) {
-          canExport = false;
-          if (isClient && target[j] && target[j].indexOf("c") !== -1) {
-            canExport = true;
-          } else if (!isClient && target[j] && target[j].indexOf("s") !== -1) {
-            canExport = true;
+        for (let idx = 0; idx < title.length; idx++) {
+          const key = title[idx];
+          const rule = ruleText[idx].trim();
+          if (key === "Empty" || rule === "Empty") {
+            continue;
           }
 
-          if (canExport) {
-            const key = title[j];
-
-            const rule = ruleText[j].trim();
-            if (key === "Empty" || rule === "Empty") {
-              continue;
-            }
-
-            let value = lineData[j];
-            if (value === undefined) {
-              value = "";
-            }
-
-            if (value) {
-              value = this.cutString(rule, value);
-            }
-
-            // this._addLog("" + value);
-            saveLineData[key] = value;
+          let value = lineData[idx] || "";
+          if (value) {
+            // value = this.cutString(rule, value);
+          }
+          if (this.isClientField(target[idx])) {
+            saveLineData.client[key] = value;
+          }
+          if (this.isServerField(target[idx])) {
+            saveLineData.server[key] = value;
           }
         }
-
-        canExport = false;
-        if (isClient && target[0] && target[0].indexOf("c") !== -1) {
-          canExport = true;
-        } else if (!isClient && target[0] && target[0].indexOf("s") !== -1) {
-          canExport = true;
-        }
-        if (canExport) {
-          saveData2[lineData[0].toString()] = saveLineData;
-        }
+        ret.server[id] = saveLineData.server;
+        ret.client[id] = saveLineData.client;
       }
-      ret = saveData2;
     }
     return ret;
   }
@@ -596,8 +606,8 @@ export class Gen {
   }
   private isFormatJson: boolean = false;
   checkJsonAllCfgFileExist() {
-    const saveFileFullPath1 = join(this.jsonSavePath, dirClientName, this.jsonAllCfgFileName + ".json");
-    const saveFileFullPath2 = join(this.jsonSavePath, dirServerName, this.jsonAllCfgFileName + ".json");
+    const saveFileFullPath1 = join(this.jsonSavePath, DirClientName, this.jsonAllCfgFileName + ".json");
+    const saveFileFullPath2 = join(this.jsonSavePath, DirServerName, this.jsonAllCfgFileName + ".json");
     if (existsSync(saveFileFullPath1) || existsSync(saveFileFullPath2)) {
       this.isJsonAllCfgFileExist = true;
     } else {
@@ -622,8 +632,8 @@ export class Gen {
   }
   // 检测js配置文件是否存在
   checkJsFileExist() {
-    const saveFileFullPath1 = join(this.jsSavePath, dirClientName, this.jsFileName + ".js");
-    const saveFileFullPath2 = join(this.jsSavePath, dirServerName, this.jsFileName + ".js");
+    const saveFileFullPath1 = join(this.jsSavePath, DirClientName, this.jsFileName + ".js");
+    const saveFileFullPath2 = join(this.jsSavePath, DirServerName, this.jsFileName + ".js");
     if (existsSync(saveFileFullPath1) || existsSync(saveFileFullPath2)) {
       this.isJsFileExist = true;
     } else {
