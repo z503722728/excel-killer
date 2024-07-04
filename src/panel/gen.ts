@@ -19,36 +19,33 @@ export class Gen {
   private _addLog(log: string) {
     throw new Error(log);
   }
-  onBtnClickGen() {
+  private check() {
     // 参数校验
     if (this.excelArray.length <= 0) {
-      this._addLog("未发现要生成的配置!");
-      return;
+      throw new Error("未发现要生成的配置!");
     }
 
     if (this.isMergeJson) {
       if (!this.jsonAllCfgFileName || this.jsonAllCfgFileName.length <= 0) {
-        this._addLog("请输入要保存的json文件名!");
-        return;
+        throw new Error("请输入要保存的json文件名!");
       }
     }
     if (this.isMergeJavaScript) {
       if (!this.jsFileName || this.jsFileName.length <= 0) {
-        this._addLog("请输入要保存的js文件名!");
-        return;
+        throw new Error("请输入要保存的js文件名!");
       }
     }
     // TODO
     if (this.isExportServer === false && this.isExportClient === false) {
-      this._addLog("请选择要导出的目标!");
-      return;
+      throw new Error("请选择要导出的目标!");
     }
 
     if (this.isExportJson === false && this.isExportJs === false) {
-      this._addLog("请选择要导出的类型!");
-      return;
+      throw new Error("请选择要导出的类型!");
     }
-
+  }
+  doWork(data: ItemData[]) {
+    this.check();
     // 删除老的配置
     const jsonSavePath1 = join(this.jsonSavePath, dirClientName);
     const jsonSavePath2 = join(this.jsonSavePath, dirServerName);

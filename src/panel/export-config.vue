@@ -1,16 +1,16 @@
 <template>
   <CCSection name="配置-导出">
     <CCProp name="Json格式" tooltip="">
-      <CCCheckBox v-model:value="config.exportJson" @onChange=""> </CCCheckBox>
+      <CCCheckBox v-model:value="config.exportJson" @change=""> </CCCheckBox>
     </CCProp>
     <CCProp name="JavaScript格式">
-      <CCCheckBox v-model:value="config.exportJs" @onChange=""> </CCCheckBox>
+      <CCCheckBox v-model:value="config.exportJs" @change=""> </CCCheckBox>
     </CCProp>
     <CCProp name="客户端*[c字段]">
-      <CCCheckBox v-model:value="config.exportClient" @onChange=""> </CCCheckBox>
+      <CCCheckBox v-model:value="config.exportClient" @change=""> </CCCheckBox>
     </CCProp>
     <CCProp name="服务端*[s字段]">
-      <CCCheckBox v-model:value="config.exportServer" @onChange=""> </CCCheckBox>
+      <CCCheckBox v-model:value="config.exportServer" @change=""> </CCCheckBox>
     </CCProp>
   </CCSection>
 </template>

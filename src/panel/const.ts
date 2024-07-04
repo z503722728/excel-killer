@@ -1,7 +1,23 @@
+import { TinyEmitter } from "tiny-emitter";
+export const emitter = new TinyEmitter();
+export const Msg = {
+  Gen: "Gen",
+};
 export interface ItemData {
+  /**
+   * excel的路径
+   */
+  fullPath: string;
   name: string;
+  /**
+   * excel里面的某个sheet的名字
+   */
   sheet: string;
   isUse: boolean;
+  /**
+   * 数据
+   */
+  buffer: ArrayBuffer | null;
 }
 export class ConfigData {
   /**

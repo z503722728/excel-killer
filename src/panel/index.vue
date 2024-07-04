@@ -29,7 +29,7 @@ import { existsSync, mkdirSync } from "fs";
 import chokidar from "chokidar";
 import CCP from "cc-plugin/src/ccp/entry-main";
 import { join } from "path";
-import { dirClientName, dirServerName } from "./const";
+import { Msg, dirClientName, dirServerName, emitter } from "./const";
 import { Gen } from "./gen";
 const { CCInput, CCButton, CCProp, CCSection, CCCheckBox, CCDialog, CCMenu, CCFootBar } = ccui.components;
 export default defineComponent({
@@ -70,21 +70,6 @@ export default defineComponent({
       }
     }
     function _initPluginCfg() {
-      const excelRootPath = appStore().config.excel_root_path;
-      if (existsSync(this.excelRootPath)) {
-        this._onAnalyzeExcelDirPath(this.excelRootPath);
-        chokidar
-          .watch(this.excelRootPath, {
-            usePolling: true,
-            // interval: 1000,
-            // awaitWriteFinish: {
-            //     stabilityThreshold: 2000,
-            //     pollInterval: 100
-            // },
-          })
-          .on("all", this._watchDir.bind(this));
-      }
-
       this.checkJsFileExist();
       this.checkJsonAllCfgFileExist();
       _initCfgSavePath(); // 默认json路径
@@ -93,7 +78,7 @@ export default defineComponent({
     return {
       version,
       onBtnClickGen() {
-        new Gen().onBtnClickGen();
+        emitter.emit(Msg.Gen);
       },
     };
   },
