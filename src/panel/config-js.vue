@@ -27,7 +27,7 @@ import { appStore } from "./store";
 import { existsSync } from "fs";
 import { join } from "path";
 import CCP from "cc-plugin/src/ccp/entry-render";
-import { dirClientName, dirServerName } from "./const";
+import { DirClientName, DirServerName } from "./const";
 const { CCInput, CCButton, CCProp, CCSection, CCCheckBox } = ccui.components;
 export default defineComponent({
   name: "index",
@@ -42,8 +42,8 @@ export default defineComponent({
       },
       // 打开生成的js配置文件
       onBtnClickOpenJsFile() {
-        let saveFileFullPath1 = join(this.jsSavePath, dirClientName, this.jsFileName + ".js");
-        let saveFileFullPath2 = join(this.jsSavePath, dirServerName, this.jsFileName + ".js");
+        let saveFileFullPath1 = join(this.jsSavePath, DirClientName, this.jsFileName + ".js");
+        let saveFileFullPath2 = join(this.jsSavePath, DirServerName, this.jsFileName + ".js");
         if (existsSync(saveFileFullPath1)) {
           CCP.Adaptation.Dialog.open(saveFileFullPath1);
         } else if (existsSync(saveFileFullPath2)) {
@@ -54,8 +54,8 @@ export default defineComponent({
         }
       },
       onBtnClickOpenJsSavePath() {
-        let saveFileFullPath1 = join(this.jsSavePath, dirClientName);
-        let saveFileFullPath2 = join(this.jsSavePath, dirServerName);
+        let saveFileFullPath1 = join(this.jsSavePath, DirClientName);
+        let saveFileFullPath2 = join(this.jsSavePath, DirServerName);
         if (existsSync(saveFileFullPath1)) {
           CCP.Adaptation.Dialog.open(saveFileFullPath1);
         } else if (existsSync(saveFileFullPath2)) {

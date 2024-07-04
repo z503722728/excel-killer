@@ -42,7 +42,7 @@ import { storeToRefs } from "pinia";
 import { appStore } from "./store";
 import { existsSync } from "fs";
 import { join } from "path";
-import { dirClientName, dirServerName } from "./const";
+import { DirClientName, DirServerName } from "./const";
 import { _importJsonCfg } from "./util";
 const { CCInput, CCButton, CCButtonGroup, CCProp, CCSection, CCCheckBox } = ccui.components;
 export default defineComponent({
@@ -72,8 +72,8 @@ export default defineComponent({
       config,
       // 打开合并的json
       onBtnClickJsonAllCfgFile() {
-        let saveFileFullPath1 = join(this.jsonSavePath, dirClientName, this.jsonAllCfgFileName + ".json");
-        let saveFileFullPath2 = join(this.jsonSavePath, dirServerName, this.jsonAllCfgFileName + ".json");
+        let saveFileFullPath1 = join(this.jsonSavePath, DirClientName, this.jsonAllCfgFileName + ".json");
+        let saveFileFullPath2 = join(this.jsonSavePath, DirServerName, this.jsonAllCfgFileName + ".json");
         if (existsSync(saveFileFullPath1)) {
           CCP.Adaptation.Dialog.open(saveFileFullPath1);
         } else if (existsSync(saveFileFullPath2)) {
@@ -98,8 +98,8 @@ export default defineComponent({
         appStore().save();
       },
       onBtnClickOpenJsonSavePath() {
-        let saveFileFullPath1 = join(this.jsonSavePath, dirClientName);
-        let saveFileFullPath2 = join(this.jsonSavePath, dirServerName);
+        let saveFileFullPath1 = join(this.jsonSavePath, DirClientName);
+        let saveFileFullPath2 = join(this.jsonSavePath, DirServerName);
         if (existsSync(saveFileFullPath1)) {
           CCP.Adaptation.Dialog.open(saveFileFullPath1);
         } else if (existsSync(saveFileFullPath2)) {

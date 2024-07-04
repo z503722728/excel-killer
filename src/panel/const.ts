@@ -17,7 +17,7 @@ export interface ItemData {
   /**
    * 数据
    */
-  buffer: ArrayBuffer | null;
+  buffer: any[][];
 }
 export class ConfigData {
   /**
@@ -92,5 +92,5 @@ export class ConfigData {
   expand_export: boolean = true;
 }
 
-export const dirClientName = "client";
-export const dirServerName = "server";
+export const DirClientName = "client";
+export const DirServerName = "server";

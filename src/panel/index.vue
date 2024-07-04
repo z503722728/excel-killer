@@ -29,7 +29,7 @@ import { existsSync, mkdirSync } from "fs";
 import chokidar from "chokidar";
 import CCP from "cc-plugin/src/ccp/entry-main";
 import { join } from "path";
-import { Msg, dirClientName, dirServerName, emitter } from "./const";
+import { Msg, DirClientName, DirServerName, emitter } from "./const";
 import { Gen } from "./gen";
 const { CCInput, CCButton, CCProp, CCSection, CCCheckBox, CCDialog, CCMenu, CCFootBar } = ccui.components;
 export default defineComponent({
@@ -60,11 +60,11 @@ export default defineComponent({
     }
     // 初始化client-server目录
     function _initCSDir(saveDir) {
-      let clientDir = join(saveDir, dirClientName);
+      let clientDir = join(saveDir, DirClientName);
       if (!existsSync(clientDir)) {
         mkdirSync(clientDir);
       }
-      let serverDir = join(saveDir, dirServerName);
+      let serverDir = join(saveDir, DirServerName);
       if (!existsSync(serverDir)) {
         mkdirSync(serverDir);
       }

@@ -65,9 +65,12 @@ export default defineComponent({
     const excelFileArr = ref([]);
     const { config } = storeToRefs(appStore());
     function onGen() {
-      const data = toRaw(excelArray.value).map((item) => item.isUse);
+      const data = toRaw(excelArray.value).filter((item) => item.isUse);
       const gen = new Gen();
       try {
+        const cfg = toRaw(appStore().config);
+        gen.ready(cfg);
+        gen.check();
         gen.doWork(data);
       } catch (e: any) {
         ccui.footbar.showError(e.message);
@@ -135,7 +138,7 @@ export default defineComponent({
             fullPath: path,
             name: basename(path),
             sheet: excel.name,
-            buffer: bufferData,
+            buffer: excel.data,
           };
           if (excel.data.length === 0) {
             console.log(`[Error] 空Sheet: ${itemData.name} - ${itemData.sheet}`);
