@@ -51,28 +51,28 @@ export class Gen {
     }
 
     // 删除老的配置
-    let jsonSavePath1 = join(this.jsonSavePath, dirClientName);
-    let jsonSavePath2 = join(this.jsonSavePath, dirServerName);
+    const jsonSavePath1 = join(this.jsonSavePath, dirClientName);
+    const jsonSavePath2 = join(this.jsonSavePath, dirServerName);
     emptyDirSync(jsonSavePath1);
     emptyDirSync(jsonSavePath2);
 
-    let jsSavePath1 = join(this.jsSavePath, dirClientName);
-    let jsSavePath2 = join(this.jsSavePath, dirServerName);
+    const jsSavePath1 = join(this.jsSavePath, dirClientName);
+    const jsSavePath2 = join(this.jsSavePath, dirServerName);
     emptyDirSync(jsSavePath1);
     emptyDirSync(jsSavePath2);
 
-    let jsonAllSaveDataClient = {}; // 保存客户端的json数据
-    let jsonAllSaveDataServer = {}; // 保存服务端的json数据
+    const jsonAllSaveDataClient = {}; // 保存客户端的json数据
+    const jsonAllSaveDataServer = {}; // 保存服务端的json数据
 
-    let jsAllSaveDataClient = {}; // 保存客户端的js数据
-    let jsAllSaveDataServer = {}; // 保存服务端的js数据
+    const jsAllSaveDataClient = {}; // 保存客户端的js数据
+    const jsAllSaveDataServer = {}; // 保存服务端的js数据
 
-    for (let k in this.excelArray) {
-      let itemSheet = this.excelArray[k];
+    for (const k in this.excelArray) {
+      const itemSheet = this.excelArray[k];
       if (itemSheet.isUse) {
-        let excelData = nodeXlsx.parse(itemSheet.fullPath);
+        const excelData = nodeXlsx.parse(itemSheet.fullPath);
         let sheetData = null;
-        for (let j in excelData) {
+        for (const j in excelData) {
           if (excelData[j].name === itemSheet.sheet) {
             sheetData = excelData[j].data;
           }
@@ -81,8 +81,8 @@ export class Gen {
           if (sheetData.length > 3) {
             if (this.isExportJson) {
               // 保存为json
-              let writeFileJson = function (pathSave, isClient) {
-                let jsonSaveData = this._getJsonSaveData(sheetData, itemSheet, isClient);
+              const writeFileJson = function (pathSave, isClient) {
+                const jsonSaveData = this._getJsonSaveData(sheetData, itemSheet, isClient);
                 if (Object.keys(jsonSaveData).length > 0) {
                   if (this.isMergeJson) {
                     if (isClient) {
@@ -101,7 +101,7 @@ export class Gen {
                       }
                     }
                   } else {
-                    let saveFileFullPath = join(pathSave, itemSheet.sheet + ".json");
+                    const saveFileFullPath = join(pathSave, itemSheet.sheet + ".json");
                     this._onSaveJsonCfgFile(jsonSaveData, saveFileFullPath);
                   }
                 }
@@ -111,8 +111,8 @@ export class Gen {
             }
             if (this.isExportJs) {
               // 保存为js
-              let writeFileJs = function (savePath, isClient) {
-                let sheetJsData = this._getJavaScriptSaveData(sheetData, itemSheet, isClient);
+              const writeFileJs = function (savePath, isClient) {
+                const sheetJsData = this._getJavaScriptSaveData(sheetData, itemSheet, isClient);
                 if (Object.keys(sheetJsData).length > 0) {
                   if (this.isMergeJavaScript) {
                     if (isClient) {
@@ -132,7 +132,7 @@ export class Gen {
                     }
                   } else {
                     // 保存js配置
-                    let fileNameFullPath = join(savePath, itemSheet.sheet + ".js");
+                    const fileNameFullPath = join(savePath, itemSheet.sheet + ".js");
                     this._onSaveJavaScriptCfgFile(fileNameFullPath, sheetJsData);
                   }
                 }
@@ -153,11 +153,11 @@ export class Gen {
     // =====================>>>>  合并json文件   <<<=================================
     if (this.isExportJson && this.isMergeJson) {
       if (this.isExportClient) {
-        let saveFileFullPath = join(jsonSavePath1, this.jsonAllCfgFileName + ".json");
+        const saveFileFullPath = join(jsonSavePath1, this.jsonAllCfgFileName + ".json");
         this._onSaveJsonCfgFile(jsonAllSaveDataClient, saveFileFullPath);
       }
       if (this.isExportServer) {
-        let saveFileFullPath = join(jsonSavePath2, this.jsonAllCfgFileName + ".json");
+        const saveFileFullPath = join(jsonSavePath2, this.jsonAllCfgFileName + ".json");
         this._onSaveJsonCfgFile(jsonAllSaveDataServer, saveFileFullPath);
       }
       this.checkJsonAllCfgFileExist();
@@ -177,24 +177,24 @@ export class Gen {
     this._addLog("全部转换完成!");
   }
   _getJsonSaveData(excelData, itemSheet, isClient) {
-    let title = excelData[0];
-    let desc = excelData[1];
-    let target = excelData[2];
-    let ruleText = excelData[3];
+    const title = excelData[0];
+    const desc = excelData[1];
+    const target = excelData[2];
+    const ruleText = excelData[3];
     let ret = null;
 
-    let useFormat1 = false;
+    const useFormat1 = false;
     if (useFormat1) {
-      let saveData1 = []; // 格式1:对应的为数组
+      const saveData1 = []; // 格式1:对应的为数组
       for (let i = 4; i < excelData.length; i++) {
-        let lineData = excelData[i];
+        const lineData = excelData[i];
         if (lineData.length < title.length) {
           continue;
         } else if (lineData.length > title.length) {
           continue;
         }
 
-        let saveLineData = {};
+        const saveLineData = {};
         let canExport = false;
         for (let j = 0; j < title.length; j++) {
           canExport = false;
@@ -205,9 +205,9 @@ export class Gen {
           }
 
           if (canExport) {
-            let key = title[j];
+            const key = title[j];
 
-            let rule = ruleText[j].trim();
+            const rule = ruleText[j].trim();
             if (key === "Empty" || rule === "Empty") {
               continue;
             }
@@ -238,16 +238,16 @@ export class Gen {
       }
       ret = saveData1;
     } else {
-      let saveData2 = {}; // 格式2:id作为索引
+      const saveData2 = {}; // 格式2:id作为索引
       for (let i = 4; i < excelData.length; i++) {
-        let lineData = excelData[i];
+        const lineData = excelData[i];
         if (lineData.length !== title.length) {
           this._addLog(`配置表头和配置数据不匹配:${itemSheet.name} - ${itemSheet.sheet} : 第${i + 1}行`);
           this._addLog("跳过该行数据");
           continue;
         }
 
-        let saveLineData = {};
+        const saveLineData = {};
         let canExport = false;
 
         // todo 将ID字段也加入到data中
@@ -260,9 +260,9 @@ export class Gen {
           }
 
           if (canExport) {
-            let key = title[j];
+            const key = title[j];
 
-            let rule = ruleText[j].trim();
+            const rule = ruleText[j].trim();
             if (key === "Empty" || rule === "Empty") {
               continue;
             }
@@ -307,13 +307,13 @@ export class Gen {
     this._addLog("[Json]:" + saveFileFullPath);
   }
   _getJavaScriptSaveData(excelData, itemSheet, isClient) {
-    let title = excelData[0];
-    let desc = excelData[1];
-    let target = excelData[2];
-    let ruleText = excelData[3];
-    let sheetFormatData = {};
+    const title = excelData[0];
+    const desc = excelData[1];
+    const target = excelData[2];
+    const ruleText = excelData[3];
+    const sheetFormatData = {};
     for (let i = 4; i < excelData.length; i++) {
-      let lineData = excelData[i];
+      const lineData = excelData[i];
       if (lineData.length === 0) {
         // 空行直接跳过
         continue;
@@ -326,7 +326,7 @@ export class Gen {
           continue;
         }
       }
-      let saveLineData = {};
+      const saveLineData = {};
       let canExport = false;
       for (let j = 1; j < title.length; j++) {
         canExport = false;
@@ -337,7 +337,7 @@ export class Gen {
         }
 
         if (canExport) {
-          let key = title[j];
+          const key = title[j];
           let rule = "";
 
           if (typeof ruleText[j] === "string") {
@@ -382,7 +382,7 @@ export class Gen {
    * @param {string} rule 规则字符串
    * @param {string} text 数据字符串
    */
-  cutString(rule, text) {
+  cutString(rule, text: string) {
     let result = null;
 
     if (typeof text == "string") {
@@ -405,18 +405,18 @@ export class Gen {
 
       // 替换数据中的字符串为 “String” 形式
       if (rule.search(/String/) != -1) {
-        let stringData = text.match(/[^(\[|\]|;|:)|\{|\}|,]+/g);
-        let noneDuplicates = [];
-        let noNumberReg = /^\d+(\.\d+)?$/;
-        for (let value of stringData) {
+        const stringData = text.match(/[^(\[|\]|;|:)|\{|\}|,]+/g);
+        const noneDuplicates = [];
+        const noNumberReg = /^\d+(\.\d+)?$/;
+        for (const value of stringData) {
           if (!noNumberReg.test(value)) {
             noneDuplicates.push(value);
           }
         }
 
-        for (let value of noneDuplicates) {
-          let notHead = text.search(eval(`/^[${value}]/`)) == -1;
-          let searchReg = new RegExp(notHead ? `[^(")]${value}{1}[;|\\]|,|}]` : `^${value}{1}[;|\\]|,|}]`);
+        for (const value of noneDuplicates) {
+          const notHead = text.search(eval(`/^[${value}]/`)) == -1;
+          const searchReg = new RegExp(notHead ? `[^(")]${value}{1}[;|\\]|,|}]` : `^${value}{1}[;|\\]|,|}]`);
           let index = text.search(searchReg);
 
           if (index != -1) {
@@ -427,19 +427,19 @@ export class Gen {
       }
 
       let array = null;
-      let insideRult = rule.match(/Object\{[a-zA-Z0-9\[\]:,"]*\}/);
+      const insideResult = rule.match(/Object\{[a-zA-Z0-9\[\]:,"]*\}/);
 
-      if (insideRult[0].indexOf("Array") == -1) {
-        let textArray = text.split(";");
+      if (insideResult[0].indexOf("Array") == -1) {
+        const textArray = text.split(";");
         array = [];
-        for (let item of textArray) {
+        for (const item of textArray) {
           array.push(`{${item}}`);
         }
       } else {
         array = text.match(/{[^({|})]*}/g);
       }
 
-      let dataArray = [];
+      const dataArray = [];
       array.forEach((item) => {
         let element = item.replace(/\{/g, "[");
         element = element.replace(/\}/g, "]");
@@ -449,23 +449,23 @@ export class Gen {
         dataArray.push(element);
       });
 
-      let keys = [];
-      let reg = /"([a-zA-Z0-9]*)":/g;
+      const keys = [];
+      const reg = /"([a-zA-Z0-9]*)":/g;
       let test = reg.exec(rule);
 
       while (test) {
-        let key = test[0].replace(/(:|\")/g, "");
+        const key = test[0].replace(/(:|\")/g, "");
         keys.push(key);
 
         test = reg.exec(rule);
       }
 
       for (let i = 0; i < dataArray.length; ++i) {
-        let obj = {};
-        let data = dataArray[i];
+        const obj = {};
+        const data = dataArray[i];
 
         let index = 0;
-        for (let key of keys) {
+        for (const key of keys) {
           obj[key] = data[index];
           index++;
         }
@@ -484,11 +484,11 @@ export class Gen {
     else if (rule.search(/Array\[String\]/) === 0) {
       let newText = "";
 
-      let textArray = text.match(/[^(\[|\]|;)]+/g);
+      const textArray = text.match(/[^(\[|\]|;)]+/g);
       let index = 0;
-      let edge = textArray.length;
+      const edge = textArray.length;
 
-      for (let subString of textArray) {
+      for (const subString of textArray) {
         newText = `${newText}"${subString}"`;
         index++;
 
@@ -512,14 +512,14 @@ export class Gen {
     else if (rule.search(/Array\[Array\[String\]\]/) === 0) {
       result = [];
 
-      let array = text.match(/\[[^(\[|\])]*\]/g);
+      const array = text.match(/\[[^(\[|\])]*\]/g);
 
-      for (let item of array) {
-        let textArray = item.match(/[^(\[|\]|;)]+/g);
+      for (const item of array) {
+        const textArray = item.match(/[^(\[|\]|;)]+/g);
         let newText = "";
         let index = 0;
-        let edge = textArray.length - 1;
-        for (let subString of textArray) {
+        const edge = textArray.length - 1;
+        for (const subString of textArray) {
           newText = `${newText}"${subString}"`;
           index++;
 
@@ -532,25 +532,25 @@ export class Gen {
 
         newText = `[${newText}]`;
 
-        let json = JSON.parse(newText);
+        const json = JSON.parse(newText);
         result.push(json);
       }
     } else if (rule.search(/Object\{[a-zA-Z0-9\[\]:,"]*\}/) === 0) {
       result = {};
 
       if (rule.search(/String/) != -1) {
-        let stringData = text.match(/[^(\[|\]|;|:)|\{|\}|,]+/g);
-        let noneDuplicates = [];
-        let noNumberReg = /^\d+(\.\d+)?$/;
-        for (let value of stringData) {
+        const stringData = text.match(/[^(\[|\]|;|:)|\{|\}|,]+/g);
+        const noneDuplicates = [];
+        const noNumberReg = /^\d+(\.\d+)?$/;
+        for (const value of stringData) {
           if (!noNumberReg.test(value)) {
             noneDuplicates.push(value);
           }
         }
 
-        for (let value of noneDuplicates) {
-          let notHead = text.search(eval(`/^[${value}]/`)) == -1;
-          let searchReg = new RegExp(notHead ? `[^(")]${value}{1}[;|\\]|,|}]` : `^${value}{1}[;|\\]|,|}]`);
+        for (const value of noneDuplicates) {
+          const notHead = text.search(eval(`/^[${value}]/`)) == -1;
+          const searchReg = new RegExp(notHead ? `[^(")]${value}{1}[;|\\]|,|}]` : `^${value}{1}[;|\\]|,|}]`);
           let index = text.search(searchReg);
 
           if (index != -1) {
@@ -560,12 +560,12 @@ export class Gen {
         }
       }
 
-      let keys = [];
-      let reg = /"([a-zA-Z0-9]*)":/g;
+      const keys = [];
+      const reg = /"([a-zA-Z0-9]*)":/g;
       let test = reg.exec(rule);
 
       while (test) {
-        let key = test[0].replace(/(:|\")/g, "");
+        const key = test[0].replace(/(:|\")/g, "");
         keys.push(key);
 
         test = reg.exec(rule);
@@ -582,7 +582,7 @@ export class Gen {
       }
 
       let index = 0;
-      for (let key of keys) {
+      for (const key of keys) {
         result[key] = json[index];
         index++;
       }
@@ -600,8 +600,8 @@ export class Gen {
   }
   private isFormatJson: boolean = false;
   checkJsonAllCfgFileExist() {
-    let saveFileFullPath1 = join(this.jsonSavePath, dirClientName, this.jsonAllCfgFileName + ".json");
-    let saveFileFullPath2 = join(this.jsonSavePath, dirServerName, this.jsonAllCfgFileName + ".json");
+    const saveFileFullPath1 = join(this.jsonSavePath, dirClientName, this.jsonAllCfgFileName + ".json");
+    const saveFileFullPath2 = join(this.jsonSavePath, dirServerName, this.jsonAllCfgFileName + ".json");
     if (existsSync(saveFileFullPath1) || existsSync(saveFileFullPath2)) {
       this.isJsonAllCfgFileExist = true;
     } else {
@@ -626,8 +626,8 @@ export class Gen {
   }
   // 检测js配置文件是否存在
   checkJsFileExist() {
-    let saveFileFullPath1 = join(this.jsSavePath, dirClientName, this.jsFileName + ".js");
-    let saveFileFullPath2 = join(this.jsSavePath, dirServerName, this.jsFileName + ".js");
+    const saveFileFullPath1 = join(this.jsSavePath, dirClientName, this.jsFileName + ".js");
+    const saveFileFullPath2 = join(this.jsSavePath, dirServerName, this.jsFileName + ".js");
     if (existsSync(saveFileFullPath1) || existsSync(saveFileFullPath2)) {
       this.isJsFileExist = true;
     } else {
