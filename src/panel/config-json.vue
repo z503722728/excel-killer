@@ -1,5 +1,5 @@
 <template>
-  <CCSection name="配置-Json" class="config-json">
+  <CCSection name="配置-Json" :expand="config.expand_json" class="config-json" @change="onChangExpand">
     <template v-slot:header>
       <div class="header">
         <div class="fill"></div>
@@ -115,6 +115,10 @@ export default defineComponent({
       },
       onBtnClickImportProjectJsonCfg_Client() {
         _importJsonCfg("client");
+      },
+      onChangExpand(expand: boolean) {
+        appStore().config.expand_json = !!expand;
+        appStore().save();
       },
     };
   },

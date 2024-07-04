@@ -84,6 +84,12 @@ export class ConfigData {
    * excel根目录
    */
   excel_root_path: string = "";
+
+  expand_excel: boolean = true;
+  expand_json: boolean = true;
+  expand_js: boolean = true;
+  expand_lua: boolean = true;
+  expand_export: boolean = true;
 }
 
 export const dirClientName = "client";

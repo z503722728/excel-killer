@@ -1,5 +1,5 @@
 <template>
-  <CCSection name="配置-导出">
+  <CCSection name="配置-导出" :expand="config.expand_export" @change="onChangeExpand">
     <CCProp name="Json格式" tooltip="">
       <CCCheckBox v-model:value="config.exportJson" @change=""> </CCCheckBox>
     </CCProp>
@@ -27,7 +27,13 @@ export default defineComponent({
   components: { CCButton, CCInput, CCProp, CCSection, CCCheckBox },
   setup() {
     const { config } = storeToRefs(appStore());
-    return { config };
+    return {
+      config,
+      onChangeExpand(expand: boolean) {
+        appStore().config.expand_export = !!expand;
+        appStore().save();
+      },
+    };
   },
 });
 </script>

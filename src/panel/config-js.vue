@@ -1,5 +1,5 @@
 <template>
-  <CCSection name="配置-JavaScript">
+  <CCSection name="配置-JavaScript" :expand="config.expand_js" @change="onChangExpand">
     <CCProp name="Js存放路径:">
       <CCInput v-model:value="config.js_save_path" disabled></CCInput>
       <CCButton color="green" @confirm="onBtnClickOpenJsSavePath"><i class="iconfont icon_folder"></i></CCButton>
@@ -36,6 +36,10 @@ export default defineComponent({
     const { config } = storeToRefs(appStore());
     return {
       config,
+      onChangExpand(expand: boolean) {
+        appStore().config.expand_js = !!expand;
+        appStore().save();
+      },
       // 打开生成的js配置文件
       onBtnClickOpenJsFile() {
         let saveFileFullPath1 = join(this.jsSavePath, dirClientName, this.jsFileName + ".js");

@@ -1,10 +1,10 @@
 <template>
   <div class="panel">
     <div class="view-root ccui-scrollbar">
-      <!-- <ConfigJs></ConfigJs> -->
       <Excel></Excel>
-      <!-- <ConfigJson></ConfigJson> -->
-      <!-- <ExportConfig></ExportConfig> -->
+      <ConfigJs></ConfigJs>
+      <ConfigJson></ConfigJson>
+      <ExportConfig></ExportConfig>
     </div>
 
     <div class="bottom">

@@ -25,6 +25,11 @@ export const appStore = defineStore("app", () => {
       config.value.js_merge = data.js_merge;
       config.value.js_file_name = data.js_file_name;
       config.value.js_format = data.js_format;
+      config.value.expand_excel = data.expand_excel;
+      config.value.expand_json = data.expand_json;
+      config.value.expand_js = data.expand_js;
+      config.value.expand_lua = data.expand_lua;
+      config.value.expand_export = data.expand_export;
     },
     save() {
       const cfg = toRaw(config.value);

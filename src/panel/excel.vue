@@ -1,5 +1,5 @@
 <template>
-  <CCSection name="配置-Excel" class="excel">
+  <CCSection name="配置-Excel" :expand="config.expand_excel" class="excel" @change="onChangeExpand">
     <template v-slot:header>
       <div class="header">sheet[{{ excelArray.length }}] excel[{{ excelFileArr.length }}]</div>
     </template>
@@ -178,6 +178,10 @@ export default defineComponent({
         for (let i = 0; i < excelArray.value.length; i++) {
           excelArray.value[i].isUse = !!b;
         }
+      },
+      onChangeExpand(expand: boolean) {
+        appStore().config.expand_excel = !!expand;
+        appStore().save();
       },
       async onBtnClickSelectExcelRootPath() {
         const ret = await CCP.Adaptation.Dialog.select({
