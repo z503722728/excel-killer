@@ -7,9 +7,12 @@
       <!-- <ExportConfig></ExportConfig> -->
     </div>
 
-    <div class="layout horizontal center justified">
+    <div class="bottom">
       <CCButton @confirm="onBtnClickGen">生成</CCButton>
     </div>
+    <CCDialog></CCDialog>
+    <CCMenu></CCMenu>
+    <CCFootBar :version="version"></CCFootBar>
   </div>
 </template>
 
@@ -27,12 +30,12 @@ import chokidar from "chokidar";
 import CCP from "cc-plugin/src/ccp/entry-main";
 import { join } from "path";
 import { dirClientName, dirServerName } from "./const";
-const { CCInput, CCButton, CCProp, CCSection, CCCheckBox } = ccui.components;
+import { Gen } from "./gen";
+const { CCInput, CCButton, CCProp, CCSection, CCCheckBox, CCDialog, CCMenu, CCFootBar } = ccui.components;
 export default defineComponent({
   name: "index",
-  components: { Excel, CCButton, CCInput, CCProp, CCSection, CCCheckBox, ExportConfig, ConfigJson, ConfigJs },
+  components: { Excel, CCButton, CCInput, CCProp, CCSection, CCDialog, CCMenu, CCFootBar, CCCheckBox, ExportConfig, ConfigJson, ConfigJs },
   setup() {
-    const logView = ref("");
     appStore().init();
     function _initCfgSavePath() {
       let projectPath = CCP.Adaptation.Project.path;
@@ -86,7 +89,13 @@ export default defineComponent({
       this.checkJsonAllCfgFileExist();
       _initCfgSavePath(); // 默认json路径
     }
-    return { logView, onBtnClickGen() {} };
+    const version = ref(PluginConfig.manifest.version);
+    return {
+      version,
+      onBtnClickGen() {
+        new Gen().onBtnClickGen();
+      },
+    };
   },
 });
 </script>
@@ -103,6 +112,11 @@ export default defineComponent({
     padding-top: 0px;
     overflow-y: auto;
     overflow-x: hidden;
+  }
+  .bottom {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
   }
 }
 </style>

@@ -1209,6 +1209,11 @@
     vue3-resize-directive "2.0.3"
     xmlhttprequest "1.8.0"
 
+"@xuyanfeng/chokidar-browserify@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@xuyanfeng/chokidar-browserify/-/chokidar-browserify-1.0.1.tgz#59f190f1e16290fa11eaaef8de72ab0f43cd481f"
+  integrity sha512-2xhqQrnPivSDrf35WEuoSI26fj7gxSoYT+22B9ENT7GbP3kgGF38nWCLYw1yHNtPlMJJpqo63vcLyNwc41TSDg==
+
 "@xuyanfeng/express-browserify@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@xuyanfeng/express-browserify/-/express-browserify-1.0.0.tgz#55eef8697650c5d279e39ce4218f8075c63d9e0b"
@@ -1991,15 +1996,14 @@ case-sensitive-paths-webpack-plugin@^2.3.0:
   resolved "https://registry.yarnpkg.com/case-sensitive-paths-webpack-plugin/-/case-sensitive-paths-webpack-plugin-2.4.0.tgz#db64066c6422eed2e08cc14b986ca43796dbc6d4"
   integrity sha512-roIFONhcxog0JSSWbvVAh3OocukmSgpqOH6YpMkCvav/ySIV3JKg4Dc8vYtQjYi/UxpNE36r/9v+VqTQqgkYmw==
 
-cc-plugin@^2.1.41:
+"cc-plugin@file:.yalc/cc-plugin":
   version "2.1.50"
-  resolved "https://registry.yarnpkg.com/cc-plugin/-/cc-plugin-2.1.50.tgz#77ee3a584b8fa7e8b98f0246f5184fdf844fe8c8"
-  integrity sha512-NMPxN0kpPpacfGhqVvFTZS7cp0RATxUQuX3jOWkQmw5b2kZMwy/kTzgwHyvH13FBTCvVd0Imv/0rbAHbm/WMQg==
   dependencies:
     "@babel/generator" "^7.16.8"
     "@popperjs/core" "^2.11.6"
     "@vue/cli-service" "^5.0.0-rc.1"
     "@vue/compiler-sfc" "3.2.26"
+    "@xuyanfeng/chokidar-browserify" "^1.0.1"
     "@xuyanfeng/express-browserify" "^1.0.0"
     "@xuyanfeng/fs-browserify" "^1.0.0"
     "@xuyanfeng/fs-extra-browserify" "^1.0.0"

@@ -1,7 +1,7 @@
 <template>
   <CCSection name="配置-Excel" class="excel">
     <template v-slot:header>
-      <div class="header">统计: sheet[{{ excelArray.length }}] excel[{{ excelFileArr.length }}]</div>
+      <div class="header">sheet[{{ excelArray.length }}] excel[{{ excelFileArr.length }}]</div>
     </template>
     <CCProp v-show="false" name="Excel文件路径:" tooltip="插件会循环遍历出目录下所有的excel文件">
       <div class="path">
@@ -12,16 +12,17 @@
         </CCButton>
       </div>
     </CCProp>
-
-    <div class="excel-title">
-      <div class="box">
-        <CCCheckBox label="序号" @onChange="onBtnClickSelectSheet"></CCCheckBox>
+    <div class="excel">
+      <div class="excel-title">
+        <div class="box">
+          <CCCheckBox label="序号" @onChange="onBtnClickSelectSheet"></CCCheckBox>
+        </div>
+        <div class="box">Excel文件</div>
+        <div class="box">工作表名称</div>
       </div>
-      <div class="box">Excel文件</div>
-      <div class="box">工作表名称</div>
-    </div>
-    <div class="excel-content">
-      <ExcelItem track-by="$index" v-for="(item, index) in excelArray" :data="item" :index="index"> </ExcelItem>
+      <div class="excel-content ccui-scrollbar">
+        <ExcelItem track-by="$index" v-for="(item, index) in excelArray" :data="item" :index="index"> </ExcelItem>
+      </div>
     </div>
   </CCSection>
 </template>
@@ -37,12 +38,13 @@ import { readdirSync, statSync } from "fs";
 import { extname, join } from "path";
 import nodeXlsx from "node-xlsx";
 const { CCInput, CCButton, CCProp, CCSection, CCCheckBox } = ccui.components;
+import chokidar from "chokidar";
 export default defineComponent({
   name: "index",
   components: { CCButton, CCInput, CCProp, CCSection, CCCheckBox, ExcelItem },
   setup() {
     const excelArray = ref<ItemData[]>([]);
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 3; i++) {
       excelArray.value.push({
         name: `name${i}`,
         sheet: `sheet${i}`,
@@ -166,8 +168,7 @@ export default defineComponent({
         }
         const dir = dirs[0];
         appStore().config.excel_root_path = dir;
-        // TODO:
-        // chokidar.watch(this.excelRootPath).on("all", this._watchDir.bind(this));
+        chokidar.watch(this.excelRootPath).on("all", this._watchDir.bind(this));
         _onAnalyzeExcelDirPath(dir);
         appStore().save();
       },
@@ -179,27 +180,54 @@ export default defineComponent({
 <style scoped lang="less">
 .excel {
   .header {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    flex: 1;
     color: #e5e9f2;
+    white-space: nowrap;
+    font-size: 13px;
+    user-select: none;
   }
   .path {
     display: flex;
     flex-direction: row;
     align-items: center;
   }
-  .excel-title {
-    color: white;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-left: 15px;
-    margin-right: 18px;
-    .box {
-      flex: 1;
-    }
-  }
-  .excel-content {
+  .excel {
+    border: #686868 1px solid;
+    border-radius: 5px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
+    .excel-title {
+      color: white;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      .box {
+        flex: 1;
+        font-size: 13px;
+        line-height: 14px;
+        height: 20px;
+        white-space: nowrap;
+        user-select: none;
+        background-color: #686868;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+      }
+    }
+    .excel-content {
+      min-height: 100px;
+      max-height: 300px;
+      overflow-x: hidden;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
   }
 }
 </style>

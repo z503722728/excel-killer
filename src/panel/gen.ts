@@ -1,8 +1,7 @@
 import { emptyDirSync, existsSync, writeFileSync } from "fs-extra";
 import { join } from "path";
 import { dirClientName, dirServerName } from "./const";
-// @ts-ignore
-import nodeXlsx from "nodeXlsx";
+import nodeXlsx from "node-xlsx";
 export class Gen {
   private isJsFileExist: boolean = false;
   private isMergeJson: boolean = false;

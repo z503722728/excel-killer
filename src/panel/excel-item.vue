@@ -1,7 +1,7 @@
 <template>
-  <div class="item" style="">
+  <div class="item" :class="calcClass()">
     <div class="box">
-      <CCCheckBox :value="data.isUse" @:onChange="onBtnClickUse"> {{ index + 1 }} </CCCheckBox>
+      <CCCheckBox :value="data.isUse" @:onChange="onBtnClickUse" :label="(index + 1).toString()"> </CCCheckBox>
     </div>
     <div class="box">{{ data.name }}</div>
     <div class="box">{{ data.sheet }}</div>
@@ -38,12 +38,25 @@ export default defineComponent({
         this.data.isUse = !this.data.isUse;
         console.log("on use: " + this.data.isUse);
       },
+      calcClass() {
+        if (props.index % 2 == 0) {
+          return "one";
+        } else {
+          return "two";
+        }
+      },
     };
   },
 });
 </script>
 
 <style scoped lang="less">
+.one {
+  background-color: rgb(78, 78, 78);
+}
+.two {
+  background-color: rgb(70, 70, 70);
+}
 .item {
   color: white;
   display: flex;
@@ -51,13 +64,21 @@ export default defineComponent({
   align-items: center;
   width: 100%;
   height: 20px;
-  background-color: #252525;
   &:hover {
-    background-color: #505050;
+    background-color: #818181;
   }
   .box {
+    display: flex;
     flex: 1;
-    padding: 0 5px 0 5px;
+    overflow: hidden;
+    justify-content: flex-start;
+    align-items: center;
+    white-space: nowrap;
+    user-select: none;
+    font-size: 13px;
+    line-height: 14px;
+    height: 20px;
+    padding: 0;
   }
 }
 </style>
