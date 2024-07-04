@@ -8,14 +8,20 @@ export interface ItemData {
    * excel的路径
    */
   fullPath: string;
+  /**
+   * excel的文件名
+   */
   name: string;
   /**
    * excel里面的某个sheet的名字
    */
   sheet: string;
+  /**
+   * 是否使用
+   */
   isUse: boolean;
   /**
-   * 数据
+   * excel的数据
    */
   buffer: any[][];
 }
