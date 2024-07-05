@@ -37,6 +37,30 @@ export default defineComponent({
   components: { Excel, CCButton, CCInput, CCProp, CCSection, CCDialog, CCMenu, CCFootBar, CCCheckBox, ExportConfig, ConfigJson, ConfigJs },
   setup() {
     appStore().init();
+    onMounted(() => {
+      ccui.footbar.registerCmd({
+        icon: "qq",
+        cb() {
+          // http://wpa.qq.com/pa?p=2:774177933:51
+          const url = "http://wpa.qq.com/msgrd?v=3&uin=774177933&site=qq&menu=yes";
+          CCP.Adaptation.Shell.openUrl(url);
+        },
+      });
+      ccui.footbar.registerCmd({
+        icon: "book",
+        cb() {
+          const url = "https://tidys.github.io/#/docs/excel-killer/README";
+          CCP.Adaptation.Shell.openUrl(url);
+        },
+      });
+      ccui.footbar.registerCmd({
+        icon: "github",
+        cb() {
+          const url = "https://github.com/tidys/excel-killer";
+          CCP.Adaptation.Shell.openUrl(url);
+        },
+      });
+    });
     const version = ref(PluginConfig.manifest.version);
     return {
       version,

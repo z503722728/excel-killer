@@ -3,7 +3,6 @@
     <template v-slot:header>
       <div class="header">
         <div class="fill"></div>
-        <CCButtonGroup :items="items"></CCButtonGroup>
       </div>
     </template>
     <CCProp name="合并所有Json" align="left" tooltip="[√]勾选,所有的配置将合并为一个json文件<br>[×]未勾选,每个sheet对应一个json文件">
@@ -49,28 +48,10 @@ export default defineComponent({
   name: "index",
   components: { CCButton, CCInput, CCProp, CCSection, CCCheckBox, CCButtonGroup },
   setup() {
-    const items = ref<ButtonGroupItem[]>([
-      {
-        text: "qq",
-        click: () => {
-          // http://wpa.qq.com/pa?p=2:774177933:51
-          const url = "http://wpa.qq.com/msgrd?v=3&uin=774177933&site=qq&menu=yes";
-          CCP.Adaptation.Shell.openUrl(url);
-        },
-      },
-      {
-        text: "doc",
-        click: () => {
-          const url = "https://tidys.github.io/#/docs/excel-killer/README";
-          CCP.Adaptation.Shell.openUrl(url);
-        },
-      },
-    ]);
     const { config } = storeToRefs(appStore());
     const isWeb = ref(CCP.Adaptation.Env.isWeb);
     return {
       isWeb,
-      items,
       config,
       // 打开合并的json
       onBtnClickJsonAllCfgFile() {
