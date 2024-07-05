@@ -1185,8 +1185,10 @@
   resolved "https://registry.yarnpkg.com/@xtuc/long/-/long-4.2.2.tgz#d291c6a4e97989b5c61d9acf396ae4fe133a718d"
   integrity sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==
 
-"@xuyanfeng/cc-ui@file:.yalc/@xuyanfeng/cc-ui":
-  version "0.2.29"
+"@xuyanfeng/cc-ui@^0.2.30":
+  version "0.2.30"
+  resolved "https://registry.yarnpkg.com/@xuyanfeng/cc-ui/-/cc-ui-0.2.30.tgz#b1b5f2077bc114b6dedbedcfb0be6db6bbcc60a5"
+  integrity sha512-AD4y4KreDoafQk1tVDozKNizJGWpWphwj1I622jPPewGAu+I8wbnA/mkd7D/8dsAP3l3Ibn8sQAIF8h57+Pygg==
   dependencies:
     axios "^1.7.2"
     chalk "^5.3.0"
@@ -1986,8 +1988,10 @@ case-sensitive-paths-webpack-plugin@^2.3.0:
   resolved "https://registry.yarnpkg.com/case-sensitive-paths-webpack-plugin/-/case-sensitive-paths-webpack-plugin-2.4.0.tgz#db64066c6422eed2e08cc14b986ca43796dbc6d4"
   integrity sha512-roIFONhcxog0JSSWbvVAh3OocukmSgpqOH6YpMkCvav/ySIV3JKg4Dc8vYtQjYi/UxpNE36r/9v+VqTQqgkYmw==
 
-"cc-plugin@file:.yalc/cc-plugin":
-  version "2.1.50"
+cc-plugin@^2.1.51:
+  version "2.1.51"
+  resolved "https://registry.yarnpkg.com/cc-plugin/-/cc-plugin-2.1.51.tgz#0e2af5ed7362fa87dda06bfe1d8a1e09137e1239"
+  integrity sha512-hANtfEWh+SW8FM/eyzO3COz5z6cFkCJhwEM839wHHYmuvT04QZJS9JqmPseuswwmiLQawrhP9/Ii0ziHLLj2Lw==
   dependencies:
     "@babel/generator" "^7.16.8"
     "@popperjs/core" "^2.11.6"
