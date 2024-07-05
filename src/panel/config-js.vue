@@ -30,7 +30,7 @@ import CCP from "cc-plugin/src/ccp/entry-render";
 import { DirClientName, DirServerName } from "./const";
 const { CCInput, CCButton, CCProp, CCSection, CCCheckBox } = ccui.components;
 export default defineComponent({
-  name: "index",
+  name: "config-js",
   components: { CCButton, CCInput, CCProp, CCSection, CCCheckBox },
   setup() {
     const { config } = storeToRefs(appStore());
