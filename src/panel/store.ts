@@ -1,9 +1,10 @@
 import { defineStore } from "pinia";
-import { ConfigData } from "./const";
+import { ConfigData, DirJsName, DirJsonName } from "./const";
 import { ref } from "vue";
 import profile from "cc-plugin/src/ccp/profile";
 import pluginConfig from "../../cc-plugin.config";
 import { toRaw } from "vue";
+import CCP from "cc-plugin/src/ccp/entry-render";
 export const appStore = defineStore("app", () => {
   const config = ref<ConfigData>(new ConfigData());
   return {
@@ -30,6 +31,11 @@ export const appStore = defineStore("app", () => {
       config.value.expand_js = data.expand_js;
       config.value.expand_lua = data.expand_lua;
       config.value.expand_export = data.expand_export;
+
+      if (CCP.Adaptation.Env.isWeb) {
+        config.value.js_save_path = DirJsName;
+        config.value.json_save_path = DirJsonName;
+      }
     },
     save() {
       const cfg = toRaw(config.value);

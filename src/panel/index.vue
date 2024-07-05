@@ -37,43 +37,6 @@ export default defineComponent({
   components: { Excel, CCButton, CCInput, CCProp, CCSection, CCDialog, CCMenu, CCFootBar, CCCheckBox, ExportConfig, ConfigJson, ConfigJs },
   setup() {
     appStore().init();
-    function _initCfgSavePath() {
-      let projectPath = CCP.Adaptation.Project.path;
-      let pluginResPath = join(projectPath, "plugin-resource");
-      if (!existsSync(pluginResPath)) {
-        mkdirSync(pluginResPath);
-      }
-
-      let pluginResPath1 = join(pluginResPath, "json");
-      if (!existsSync(pluginResPath1)) {
-        mkdirSync(pluginResPath1);
-      }
-      this.jsonSavePath = pluginResPath1;
-      _initCSDir(this.jsonSavePath);
-
-      let pluginResPath2 = join(pluginResPath, "js");
-      if (!existsSync(pluginResPath2)) {
-        mkdirSync(pluginResPath2);
-      }
-      this.jsSavePath = pluginResPath2;
-      _initCSDir(this.jsSavePath);
-    }
-    // 初始化client-server目录
-    function _initCSDir(saveDir) {
-      let clientDir = join(saveDir, DirClientName);
-      if (!existsSync(clientDir)) {
-        mkdirSync(clientDir);
-      }
-      let serverDir = join(saveDir, DirServerName);
-      if (!existsSync(serverDir)) {
-        mkdirSync(serverDir);
-      }
-    }
-    function _initPluginCfg() {
-      this.checkJsFileExist();
-      this.checkJsonAllCfgFileExist();
-      _initCfgSavePath(); // 默认json路径
-    }
     const version = ref(PluginConfig.manifest.version);
     return {
       version,

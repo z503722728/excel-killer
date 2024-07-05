@@ -1,6 +1,6 @@
 <template>
   <CCSection name="配置-JavaScript" :expand="config.expand_js" @change="onChangExpand">
-    <CCProp name="Js存放路径:">
+    <CCProp name="Js存放路径:" v-if="!isWeb">
       <CCInput v-model:value="config.js_save_path" disabled></CCInput>
       <CCButton color="green" @confirm="onBtnClickOpenJsSavePath"><i class="iconfont icon_folder"></i></CCButton>
     </CCProp>
@@ -9,7 +9,7 @@
     </CCProp>
     <CCProp name="javaScript文件名" v-show="config.js_merge">
       <CCInput v-model:value="config.js_file_name" placeholder="请输入javaScript文件名"></CCInput>
-      <CCButton @confirm="onBtnClickOpenJsFile" v-show="isJsFileExist && config.js_merge">
+      <CCButton @confirm="onBtnClickOpenJsFile" v-show="config.js_merge">
         <i class="iconfont icon_folder"></i>
       </CCButton>
     </CCProp>
@@ -19,7 +19,7 @@
   </CCSection>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted, ref, provide, nextTick } from "vue";
+import { defineComponent, onMounted, ref, provide, nextTick, toRaw } from "vue";
 import PluginConfig from "../../cc-plugin.config";
 import ccui from "@xuyanfeng/cc-ui";
 import { storeToRefs } from "pinia";
@@ -34,7 +34,9 @@ export default defineComponent({
   components: { CCButton, CCInput, CCProp, CCSection, CCCheckBox },
   setup() {
     const { config } = storeToRefs(appStore());
+    const isWeb = ref(CCP.Adaptation.Env.isWeb);
     return {
+      isWeb,
       config,
       onChangExpand(expand: boolean) {
         appStore().config.expand_js = !!expand;
@@ -42,28 +44,26 @@ export default defineComponent({
       },
       // 打开生成的js配置文件
       onBtnClickOpenJsFile() {
-        let saveFileFullPath1 = join(this.jsSavePath, DirClientName, this.jsFileName + ".js");
-        let saveFileFullPath2 = join(this.jsSavePath, DirServerName, this.jsFileName + ".js");
-        if (existsSync(saveFileFullPath1)) {
-          CCP.Adaptation.Dialog.open(saveFileFullPath1);
-        } else if (existsSync(saveFileFullPath2)) {
-          CCP.Adaptation.Dialog.open(saveFileFullPath2);
-        } else {
-          // this._addLog("目录不存在：" + this.resourceRootDir);
-          this._addLog("目录不存在:" + saveFileFullPath1 + " or:" + saveFileFullPath2);
+        const jsSavePath = toRaw(appStore().config.js_save_path);
+        const jsFileName = toRaw(appStore().config.js_file_name);
+        const client = join(jsSavePath, DirClientName, jsFileName + ".js");
+        const server = join(jsSavePath, DirServerName, jsFileName + ".js");
+        if (existsSync(client)) {
+          CCP.Adaptation.Dialog.open(client);
+        }
+        if (existsSync(server)) {
+          CCP.Adaptation.Dialog.open(server);
         }
       },
       onBtnClickOpenJsSavePath() {
-        let saveFileFullPath1 = join(this.jsSavePath, DirClientName);
-        let saveFileFullPath2 = join(this.jsSavePath, DirServerName);
-        if (existsSync(saveFileFullPath1)) {
-          CCP.Adaptation.Dialog.open(saveFileFullPath1);
-        } else if (existsSync(saveFileFullPath2)) {
-          CCP.Adaptation.Dialog.open(saveFileFullPath2);
-        } else {
-          // this._addLog("目录不存在：" + this.resourceRootDir);
-          this._addLog("目录不存在:" + saveFileFullPath1 + " or:" + saveFileFullPath2);
-          return;
+        const jsSavePath = toRaw(appStore().config.js_save_path);
+        const client = join(jsSavePath, DirClientName);
+        const server = join(jsSavePath, DirServerName);
+        if (existsSync(client)) {
+          CCP.Adaptation.Dialog.open(client);
+        }
+        if (existsSync(server)) {
+          CCP.Adaptation.Dialog.open(server);
         }
       },
     };

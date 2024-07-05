@@ -1,7 +1,7 @@
 <template>
   <div class="item" :class="calcClass()">
     <div class="box">
-      <CCCheckBox :value="data.isUse" @:onChange="onBtnClickUse" :label="(index + 1).toString()"> </CCCheckBox>
+      <CCCheckBox :value="data.isUse" @:change="onBtnClickUse" :label="(index + 1).toString()"> </CCCheckBox>
     </div>
     <div class="box">{{ data.name }}</div>
     <div class="box">{{ data.sheet }}</div>
@@ -35,8 +35,7 @@ export default defineComponent({
   setup(props, ctx) {
     return {
       onBtnClickUse() {
-        this.data.isUse = !this.data.isUse;
-        console.log("on use: " + this.data.isUse);
+        props.data.isUse = !props.data.isUse;
       },
       calcClass() {
         if (props.index % 2 == 0) {

@@ -11,29 +11,29 @@
     </CCProp>
     <CCProp name="合并的Json配置文件名" v-show="config.json_merge">
       <CCInput v-model:value="config.json_all_cfg_file_name" placeholder="请输入json配置文件名"></CCInput>
-      <CCButton v-show="isJsonAllCfgFileExist && config.json_merge" @confirm="onBtnClickJsonAllCfgFile">
+      <CCButton v-show="!isWeb && config.json_merge" @confirm="onBtnClickJsonAllCfgFile">
         <i class="iconfont icon_folder"></i>
       </CCButton>
     </CCProp>
     <CCProp name="Json格式化" align="left" tooltip=" [√]勾选,json将格式化后保存<br>[×]未勾选,json将保存为单行文件">
       <CCCheckBox v-model:value="config.json_format"></CCCheckBox>
     </CCProp>
-    <CCProp name="Json存放路径:">
+    <CCProp name="Json存放路径:" v-if="!isWeb">
       <CCInput v-model:value="config.json_save_path" disabled></CCInput>
-      <CCButton color="green" @confirm="onBtnClickOpenJsonSavePath">打开</CCButton>
+      <CCButton @confirm="onBtnClickOpenJsonSavePath"><i class="iconfont icon_folder"></i></CCButton>
     </CCProp>
-    <CCProp name="导入项目路径" tooltip="将生产的json配置导入到项目中">
+    <CCProp v-if="!isWeb" name="导入项目路径" tooltip="将生产的json配置导入到项目中">
       <CCInput readonly v-model:value="config.json_import_project_cfg_path"></CCInput>
       <CCButton @confirm="onBtnClickSelectProjectJsonCfgPath">选择</CCButton>
     </CCProp>
-    <div class="import">
+    <div class="import" v-if="!isWeb">
       <CCButton @confirm="onBtnClickImportProjectJsonCfg_Server" class="red">导入服务端配置</CCButton>
       <CCButton @confirm="onBtnClickImportProjectJsonCfg_Client" class="red">导入客户端配置</CCButton>
     </div>
   </CCSection>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted, ref, provide, nextTick } from "vue";
+import { defineComponent, onMounted, ref, provide, nextTick, toRaw } from "vue";
 import PluginConfig from "../../cc-plugin.config";
 import ccui from "@xuyanfeng/cc-ui";
 import { ButtonGroupItem } from "@xuyanfeng/cc-ui/types/cc-button-group/const";
@@ -43,7 +43,7 @@ import { appStore } from "./store";
 import { existsSync } from "fs";
 import { join } from "path";
 import { DirClientName, DirServerName } from "./const";
-import { _importJsonCfg } from "./util";
+import { importJsonCfg } from "./util";
 const { CCInput, CCButton, CCButtonGroup, CCProp, CCSection, CCCheckBox } = ccui.components;
 export default defineComponent({
   name: "index",
@@ -67,21 +67,22 @@ export default defineComponent({
       },
     ]);
     const { config } = storeToRefs(appStore());
+    const isWeb = ref(CCP.Adaptation.Env.isWeb);
     return {
+      isWeb,
       items,
       config,
       // 打开合并的json
       onBtnClickJsonAllCfgFile() {
-        let saveFileFullPath1 = join(this.jsonSavePath, DirClientName, this.jsonAllCfgFileName + ".json");
-        let saveFileFullPath2 = join(this.jsonSavePath, DirServerName, this.jsonAllCfgFileName + ".json");
-        if (existsSync(saveFileFullPath1)) {
-          CCP.Adaptation.Dialog.open(saveFileFullPath1);
-        } else if (existsSync(saveFileFullPath2)) {
-          CCP.Adaptation.Dialog.open(saveFileFullPath2);
-        } else {
-          // this._addLog("目录不存在：" + this.resourceRootDir);
-          this._addLog("目录不存在:" + saveFileFullPath1 + " or:" + saveFileFullPath2);
-          return;
+        const jsonAllCfgFileName = toRaw(appStore().config.json_all_cfg_file_name);
+        const jsonSavePath = toRaw(appStore().config.json_save_path);
+        const client = join(jsonSavePath, DirClientName, jsonAllCfgFileName + ".json");
+        const server = join(jsonSavePath, DirServerName, jsonAllCfgFileName + ".json");
+        if (existsSync(client)) {
+          CCP.Adaptation.Dialog.open(client);
+        }
+        if (existsSync(server)) {
+          CCP.Adaptation.Dialog.open(server);
         }
       },
       async onBtnClickSelectProjectJsonCfgPath() {
@@ -98,23 +99,21 @@ export default defineComponent({
         appStore().save();
       },
       onBtnClickOpenJsonSavePath() {
-        let saveFileFullPath1 = join(this.jsonSavePath, DirClientName);
-        let saveFileFullPath2 = join(this.jsonSavePath, DirServerName);
-        if (existsSync(saveFileFullPath1)) {
-          CCP.Adaptation.Dialog.open(saveFileFullPath1);
-        } else if (existsSync(saveFileFullPath2)) {
-          CCP.Adaptation.Dialog.open(saveFileFullPath2);
-        } else {
-          // this._addLog("目录不存在：" + this.resourceRootDir);
-          this._addLog("目录不存在:" + saveFileFullPath1 + " or:" + saveFileFullPath2);
-          return;
+        const jsonSavePath = toRaw(appStore().config.json_save_path);
+        const client = join(jsonSavePath, DirClientName);
+        const server = join(jsonSavePath, DirServerName);
+        if (existsSync(client)) {
+          CCP.Adaptation.Dialog.open(client);
+        }
+        if (existsSync(server)) {
+          CCP.Adaptation.Dialog.open(server);
         }
       },
-      onBtnClickImportProjectJsonCfg_Server() {
-        _importJsonCfg("server");
+      async onBtnClickImportProjectJsonCfg_Server() {
+        await importJsonCfg(DirServerName);
       },
-      onBtnClickImportProjectJsonCfg_Client() {
-        _importJsonCfg("client");
+      async onBtnClickImportProjectJsonCfg_Client() {
+        await importJsonCfg(DirClientName);
       },
       onChangExpand(expand: boolean) {
         appStore().config.expand_json = !!expand;

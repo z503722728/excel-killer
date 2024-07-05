@@ -1,11 +1,11 @@
 import { emptyDirSync, existsSync, writeFileSync } from "fs-extra";
 import { join } from "path";
 import { ConfigData, DirClientName, DirServerName, ItemData } from "./const";
-import nodeXlsx from "node-xlsx";
 import CCP from "cc-plugin/src/ccp/entry-render";
-import { appStore } from "./store";
+import jszip from "jszip";
 export class Gen {
   private isMergeJson: boolean = false;
+  private isFormatJson: boolean = false;
   private isFormatJsCode: boolean = false;
   private jsonAllCfgFileName: string = "";
   private jsFileName: string = "";
@@ -83,15 +83,8 @@ export class Gen {
    * ```
    */
   private jsonAllServerData = {};
-  /**
-   * 保存客户端的js数据
-   */
-  private jsAllClientData = {};
-  /**
-   * 保存服务端的js数据
-   */
-  private jsAllServerData = {};
-  doWork(data: ItemData[]) {
+
+  async doWork(data: ItemData[]): Promise<void> {
     debugger;
     // 删除老的配置
     const jsonClient = join(this.jsonSavePath, DirClientName);
@@ -122,66 +115,75 @@ export class Gen {
       }
       this.parseExcelData(itemSheet);
     }
-    this.exportJson();
-    this.exportJavaScript();
+    let zip: null | jszip = null;
+    if (CCP.Adaptation.Env.isWeb) {
+      zip = new jszip();
+    }
+    this.exportJson(zip);
+    this.exportJavaScript(zip);
+    if (CCP.Adaptation.Env.isWeb) {
+      const content = await zip.generateAsync({ type: "blob" });
+      const filename = "excel.zip";
+      await CCP.Adaptation.Download.downloadBlobFile(filename, content);
+    }
     return;
   }
-  private exportJson() {
+  private exportJson(zip: null | jszip) {
     if (!this.isExportJson) {
       return;
     }
     if (this.isMergeJson) {
       if (this.isExportClient) {
         const fullPath = join(this.jsonSavePath, DirClientName, `${this.jsonAllCfgFileName}.json`);
-        this.saveJsonFile(this.jsonAllClientData, fullPath);
+        this.saveJsonFile(this.jsonAllClientData, fullPath, zip);
       }
       if (this.isExportServer) {
         const fullPath = join(this.jsonSavePath, DirServerName, `${this.jsonAllCfgFileName}.json`);
-        this.saveJsonFile(this.jsonAllServerData, fullPath);
+        this.saveJsonFile(this.jsonAllServerData, fullPath, zip);
       }
     } else {
       if (this.isExportClient) {
         for (const key in this.jsonAllClientData) {
           const fullPath = join(this.jsonSavePath, DirClientName, `${key}.json`);
           const data = this.jsonAllClientData[key];
-          this.saveJsonFile(data, fullPath);
+          this.saveJsonFile(data, fullPath, zip);
         }
       }
       if (this.isExportServer) {
         for (const key in this.jsonAllServerData) {
           const data = this.jsonAllServerData[key];
           const fullPath = join(this.jsonSavePath, DirServerName, `${key}.json`);
-          this.saveJsonFile(data, fullPath);
+          this.saveJsonFile(data, fullPath, zip);
         }
       }
     }
   }
-  private exportJavaScript() {
+  private exportJavaScript(zip: null | jszip) {
     if (!this.isExportJs) {
       return;
     }
     if (this.isMergeJavaScript) {
       if (this.isExportClient) {
         const fullPath = join(this.jsSavePath, DirClientName, `${this.jsFileName}.js`);
-        this.saveJavaScriptFile(fullPath, this.jsonAllClientData);
+        this.saveJavaScriptFile(fullPath, this.jsonAllClientData, zip);
       }
       if (this.isExportServer) {
         const fullPath = join(this.jsSavePath, DirServerName, `${this.jsFileName}.js`);
-        this.saveJavaScriptFile(fullPath, this.jsonAllServerData);
+        this.saveJavaScriptFile(fullPath, this.jsonAllServerData, zip);
       }
     } else {
       if (this.isExportClient) {
         for (const key in this.jsonAllClientData) {
           const data = this.jsonAllClientData[key];
           const fullPath = join(this.jsSavePath, DirClientName, `${key}.js`);
-          this.saveJavaScriptFile(fullPath, data);
+          this.saveJavaScriptFile(fullPath, data, zip);
         }
       }
       if (this.isExportServer) {
         for (const key in this.jsonAllServerData) {
           const data = this.jsonAllServerData[key];
           const fullPath = join(this.jsSavePath, DirServerName, `${key}.js`);
-          this.saveJavaScriptFile(fullPath, data);
+          this.saveJavaScriptFile(fullPath, data, zip);
         }
       }
     }
@@ -223,6 +225,10 @@ export class Gen {
     for (let line = 4; line < excelData.length; line++) {
       const lineData = excelData[line];
       const id = lineData[0];
+      if (!lineData.length) {
+        // skip empty line
+        continue;
+      }
       if (lineData.length < title.length) {
         throw new Error(`配置数据缺失:${itemSheet.name}:${itemSheet.sheet}:${line + 1}`);
       }
@@ -251,19 +257,26 @@ export class Gen {
     }
     return ret;
   }
-  // 保存为json配置
-  saveJsonFile(data: any, path: string) {
+  saveJsonFile(data: any, path: string, zip: null | jszip) {
     const str = JSON.stringify(data, null, this.isFormatJson ? 2 : 0);
     writeFileSync(path, str);
     console.log("[Json]:" + path);
+    zip && zip.file(path, str);
+    return str;
   }
-
+  saveJavaScriptFile(path: string, data: any, zip: null | jszip) {
+    const str = "module.exports =" + JSON.stringify(data, null, this.isFormatJsCode ? 2 : 0) + ";";
+    writeFileSync(path, str);
+    console.log("[JavaScript]" + path);
+    zip && zip.file(path, str);
+    return str;
+  }
   /**
    * 切割字符串数据
    * @param {string} rule 规则字符串
    * @param {string} text 数据字符串
    */
-  cutString(rule, text: string) {
+  cutString(rule: string, text: string) {
     let result = null;
 
     if (typeof text == "string") {
@@ -478,22 +491,5 @@ export class Gen {
     }
 
     return result;
-  }
-  private isFormatJson: boolean = false;
-
-  // 保存为js配置
-  saveJavaScriptFile(saveFileFullPath: string, jsSaveData: any) {
-    // TODO 保证key的顺序一致性
-    let saveStr = "module.exports = ";
-    if (this.isFormatJsCode) {
-      // 保存为格式化代码
-      saveStr = saveStr + JSON.stringify(jsSaveData, null, "\t") + ";";
-    } else {
-      // 保存为单行代码
-      saveStr = saveStr + JSON.stringify(jsSaveData) + ";";
-    }
-
-    writeFileSync(saveFileFullPath, saveStr);
-    console.log("[JavaScript]" + saveFileFullPath);
   }
 }

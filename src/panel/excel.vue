@@ -64,34 +64,23 @@ export default defineComponent({
      */
     const excelFileArr = ref([]);
     const { config } = storeToRefs(appStore());
-    function onGen() {
-      const data = toRaw(excelArray.value).filter((item) => item.isUse);
-      const gen = new Gen();
-      try {
-        const cfg = toRaw(appStore().config);
-        gen.ready(cfg);
-        gen.check();
-        gen.doWork(data);
-      } catch (e: any) {
-        ccui.footbar.showError(e.message);
-      }
+    async function onGen() {
+      (async () => {
+        const data = toRaw(excelArray.value).filter((item) => item.isUse);
+        const gen = new Gen();
+        try {
+          const cfg = toRaw(appStore().config);
+          gen.ready(cfg);
+          gen.check();
+          await gen.doWork(data);
+        } catch (e: any) {
+          ccui.footbar.showError(e.message);
+        }
+      })();
     }
     onMounted(async () => {
       await fresh();
       emitter.on(Msg.Gen, onGen);
-      // const excelRootPath = appStore().config.excel_root_path;
-      // if (existsSync(this.excelRootPath)) {
-      //   chokidar
-      //     .watch(this.excelRootPath, {
-      //       usePolling: true,
-      //       // interval: 1000,
-      //       // awaitWriteFinish: {
-      //       //     stabilityThreshold: 2000,
-      //       //     pollInterval: 100
-      //       // },
-      //     })
-      //     .on("all", this._watchDir.bind(this));
-      // }
     });
     onUnmounted(() => {
       emitter.off(Msg.Gen, onGen);
@@ -163,12 +152,6 @@ export default defineComponent({
 
     function _watchDir(event, filePath) {
       return;
-      console.log("监控文件....");
-      console.log(event, filePath);
-      let ext = extname(filePath);
-      if (ext === ".xlsx" || ext === ".xls") {
-        this._onAnalyzeExcelDirPath(this.excelRootPath);
-      }
     }
     return {
       excelArray,
@@ -204,7 +187,6 @@ export default defineComponent({
           } else if (CCP.Adaptation.Env.isPlugin) {
             const dir = dirs[0];
             appStore().config.excel_root_path = dir;
-            chokidar.watch(this.excelRootPath).on("all", this._watchDir.bind(this));
             onAnalyzeExcelDirPath(dir);
           }
           appStore().save();

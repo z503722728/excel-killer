@@ -100,3 +100,6 @@ export class ConfigData {
 
 export const DirClientName = "client";
 export const DirServerName = "server";
+export const DirJsonName = "json";
+export const DirJsName = "js";
+export const DirLuaName = "lua";
