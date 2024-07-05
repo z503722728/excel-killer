@@ -9,6 +9,9 @@ const manifest: CocosPluginManifest = {
   description: "excel-killer",
   author: "cc-plugin",
   main: "./src/main.ts",
+  analysis: {
+    tongjiniao: "656939525843935232",
+  },
   panels: [
     {
       name: "main",
