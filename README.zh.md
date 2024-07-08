@@ -1,5 +1,7 @@
 # excel-killer
 ## 插件说明:
+该插件使用[cc-plugin](https://www.npmjs.com/package/cc-plugin)开发，同时支持creator2.x， creator3.x、并且还支持[web在线使用](https://tidys.github.io/excel-killer/main.html)，插件完全
+[开源](https://github.com/tidys/excel-killer)免费，有需要前往[store下载](https://store.cocos.com/app/detail/2016)。
 
 插件会展示指定目录下所有excel的sheet，并统计出excel、sheet的数量，可以导出指定的sheet，默认全部导出
 
@@ -143,3 +145,13 @@ Excel支持的格式: `*.xlsx`, `*.xls`
 ## 合并
 - 不使用合并功能，每个excel的sheet会生成一个对应的json配置，因此需要保证sheet不能出现重名
 - 使用合并功能，所有的excel将合并为一个配置文件，因此需要指定合并后的配置文件名
+
+## 联系作者 
+- 邮箱 xu_yanfeng@126.com
+- 微信号 xu__yanfeng
+
+    ![](https://download.cocos.com/CocosStore/markdown/0aa4773f76bb4f998bf0b1078752f128/0aa4773f76bb4f998bf0b1078752f128.jpg)
+ 
+
+## 购买须知 
+本产品为付费虚拟商品，一经购买成功概不退款，请支付前谨慎确认购买内容。
