@@ -3,7 +3,7 @@
     <template v-slot:header>
       <div class="header">sheet[{{ excelArray.length }}] excel[{{ excelFileArr.length }}]</div>
     </template>
-    <CCProp v-show="true" name="Excel文件夹路径:" tooltip="插件会循环遍历出目录下所有的excel文件">
+    <CCProp v-show="true" name="Excel文件夹路径:" align="left" tooltip="插件会循环遍历出目录下所有的excel文件">
       <div class="path">
         <CCInput @click="onOpenExcelRootPath" placeholder="请选择Excel目录" disabled v-model:value="config.excel_root_path" :directory="true"></CCInput>
         <CCButton @confirm="onBtnClickSelectExcelRootPath"><i class="iconfont icon_folder"></i></CCButton>
@@ -221,6 +221,7 @@ export default defineComponent({
     user-select: none;
   }
   .path {
+    flex: 1;
     display: flex;
     flex-direction: row;
     align-items: center;

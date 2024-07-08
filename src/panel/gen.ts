@@ -48,12 +48,20 @@ export class Gen {
   }
   public check() {
     if (CCP.Adaptation.Env.isPlugin) {
-      if (!this.jsSavePath || !existsSync(this.jsSavePath)) {
-        throw new Error(`invalid js save path: ${this.jsSavePath}`);
+      if (this.isExportJs) {
+        if (!this.jsSavePath || !existsSync(this.jsSavePath)) {
+          throw new Error(`无效的js保存路径: ${this.jsSavePath}`);
+        }
       }
-
-      if (!this.jsonSavePath || !existsSync(this.jsonSavePath)) {
-        throw new Error(`invalid json save path: ${this.jsonSavePath}`);
+      if (this.isExportJson) {
+        if (!this.jsonSavePath || !existsSync(this.jsonSavePath)) {
+          throw new Error(`无效的json保存路径: ${this.jsonSavePath}`);
+        }
+      }
+      if (this.isExportTs) {
+        if (!this.tsSavePath || !existsSync(this.tsSavePath)) {
+          throw new Error(`无效的ts保存路径: ${this.tsSavePath}`);
+        }
       }
     }
 
@@ -94,16 +102,14 @@ export class Gen {
 
   async doWork(data: ItemData[]): Promise<void> {
     // 删除老的配置
-    const jsonClient = join(this.jsonSavePath, DirClientName);
-    const jsonServer = join(this.jsonSavePath, DirServerName);
-    const jsClient = join(this.jsSavePath, DirClientName);
-    const jsServer = join(this.jsSavePath, DirServerName);
-    if (CCP.Adaptation.Env.isPlugin) {
-      emptyDirSync(jsonClient);
-      emptyDirSync(jsonServer);
-      emptyDirSync(jsClient);
-      emptyDirSync(jsServer);
-    }
+    [this.jsonSavePath, this.tsSavePath, this.jsSavePath].forEach((item) => {
+      [DirClientName, DirServerName].forEach((dir) => {
+        const fullPath = join(item, dir);
+        if (existsSync(fullPath)) {
+          emptyDirSync(fullPath);
+        }
+      });
+    });
 
     for (let k = 0; k < data.length; k++) {
       const itemSheet = data[k];
@@ -152,7 +158,7 @@ export class Gen {
     } else {
       if (this.isExportClient) {
         for (const key in this.jsonAllClientData) {
-          const fullPath = join(this.jsonSavePath, DirClientName, `${key}.ts`);
+          const fullPath = join(this.tsSavePath, DirClientName, `${key}.ts`);
           const data = this.jsonAllClientData[key];
           this.saveTsFile(data, fullPath, zip);
         }
@@ -160,7 +166,7 @@ export class Gen {
       if (this.isExportServer) {
         for (const key in this.jsonAllServerData) {
           const data = this.jsonAllServerData[key];
-          const fullPath = join(this.jsonSavePath, DirServerName, `${key}.ts`);
+          const fullPath = join(this.tsSavePath, DirServerName, `${key}.ts`);
           this.saveTsFile(data, fullPath, zip);
         }
       }
