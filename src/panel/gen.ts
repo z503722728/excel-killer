@@ -7,33 +7,41 @@ export class Gen {
   private isMergeJson: boolean = false;
   private isFormatJson: boolean = false;
   private isFormatJsCode: boolean = false;
-  private jsonAllCfgFileName: string = "";
+  private jsonFileName: string = "";
   private jsFileName: string = "";
+  private tsFileName: string = "";
   private isExportServer: boolean = false;
   private isExportClient: boolean = false;
   private isExportJson: boolean = false;
+  private isExportTs: boolean = false;
   private jsSavePath: string = "";
+  private tsSavePath: string = "";
   private jsonSavePath: string = "";
   private isExportJs: boolean = false;
   private isMergeJavaScript: boolean = false;
+  private isMergeTs: boolean = false;
   private _addLog(log: string) {
     throw new Error(log);
   }
   public ready(cfg: ConfigData) {
     this.isMergeJson = cfg.json_merge;
-    this.jsonAllCfgFileName = cfg.json_all_cfg_file_name;
-
+    this.isMergeTs = cfg.ts_merge;
     this.isMergeJavaScript = cfg.js_merge;
+
+    this.jsonFileName = cfg.json_all_cfg_file_name;
     this.jsFileName = cfg.js_file_name;
+    this.tsFileName = cfg.ts_file_name;
 
     this.isExportServer = cfg.exportServer;
     this.isExportClient = cfg.exportClient;
 
     this.isExportJson = cfg.exportJson;
     this.isExportJs = cfg.exportJs;
+    this.isExportTs = cfg.exportTs;
 
     this.jsSavePath = cfg.js_save_path;
     this.jsonSavePath = cfg.json_save_path;
+    this.tsSavePath = cfg.ts_save_path;
 
     this.isFormatJsCode = cfg.js_format;
     this.isFormatJson = cfg.json_format;
@@ -50,7 +58,7 @@ export class Gen {
     }
 
     if (this.isMergeJson) {
-      if (!this.jsonAllCfgFileName || this.jsonAllCfgFileName.length <= 0) {
+      if (!this.jsonFileName || this.jsonFileName.length <= 0) {
         throw new Error("请输入要保存的json文件名!");
       }
     }
@@ -63,7 +71,7 @@ export class Gen {
       throw new Error("请选择要导出的目标!");
     }
 
-    if (this.isExportJson === false && this.isExportJs === false) {
+    if (this.isExportJson === false && this.isExportJs === false && this.isExportTs === false) {
       throw new Error("请选择要导出的类型!");
     }
   }
@@ -120,6 +128,7 @@ export class Gen {
     }
     this.exportJson(zip);
     this.exportJavaScript(zip);
+    this.exportTs(zip);
     if (CCP.Adaptation.Env.isWeb) {
       const content = await zip.generateAsync({ type: "blob" });
       const filename = "excel.zip";
@@ -127,17 +136,54 @@ export class Gen {
     }
     return;
   }
+  private exportTs(zip: null | jszip) {
+    if (!this.isExportTs) {
+      return;
+    }
+    if (this.isMergeTs) {
+      if (this.isExportClient) {
+        const fullPath = join(this.tsSavePath, DirClientName, `${this.tsFileName}.ts`);
+        this.saveTsFile(this.jsonAllClientData, fullPath, zip);
+      }
+      if (this.isExportServer) {
+        const fullPath = join(this.tsSavePath, DirServerName, `${this.tsFileName}.ts`);
+        this.saveTsFile(this.jsonAllServerData, fullPath, zip);
+      }
+    } else {
+      if (this.isExportClient) {
+        for (const key in this.jsonAllClientData) {
+          const fullPath = join(this.jsonSavePath, DirClientName, `${key}.ts`);
+          const data = this.jsonAllClientData[key];
+          this.saveTsFile(data, fullPath, zip);
+        }
+      }
+      if (this.isExportServer) {
+        for (const key in this.jsonAllServerData) {
+          const data = this.jsonAllServerData[key];
+          const fullPath = join(this.jsonSavePath, DirServerName, `${key}.ts`);
+          this.saveTsFile(data, fullPath, zip);
+        }
+      }
+    }
+  }
+  private saveTsFile(data: any, path: string, zip: null | jszip) {
+    const str = "export default " + JSON.stringify(data, null, 2) + ";";
+    writeFileSync(path, str);
+    console.log("[TypeScript]" + path);
+    zip && zip.file(path, str);
+    return str;
+  }
   private exportJson(zip: null | jszip) {
     if (!this.isExportJson) {
       return;
     }
     if (this.isMergeJson) {
       if (this.isExportClient) {
-        const fullPath = join(this.jsonSavePath, DirClientName, `${this.jsonAllCfgFileName}.json`);
+        const fullPath = join(this.jsonSavePath, DirClientName, `${this.jsonFileName}.json`);
         this.saveJsonFile(this.jsonAllClientData, fullPath, zip);
       }
       if (this.isExportServer) {
-        const fullPath = join(this.jsonSavePath, DirServerName, `${this.jsonAllCfgFileName}.json`);
+        const fullPath = join(this.jsonSavePath, DirServerName, `${this.jsonFileName}.json`);
         this.saveJsonFile(this.jsonAllServerData, fullPath, zip);
       }
     } else {
