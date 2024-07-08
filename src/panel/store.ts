@@ -31,7 +31,11 @@ export const appStore = defineStore("app", () => {
       config.value.expand_js = data.expand_js;
       config.value.expand_lua = data.expand_lua;
       config.value.expand_export = data.expand_export;
-
+      config.value.ts_merge = data.ts_merge;
+      config.value.ts_save_path = data.ts_save_path;
+      config.value.expand_ts = data.expand_ts;
+      config.value.ts_file_name = data.ts_file_name;
+      config.value.exportTs = data.exportTs;
       if (CCP.Adaptation.Env.isWeb) {
         config.value.js_save_path = DirJsName;
         config.value.json_save_path = DirJsonName;

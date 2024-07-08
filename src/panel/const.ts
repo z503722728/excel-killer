@@ -58,6 +58,14 @@ export class ConfigData {
    * creator项目的配置文件路径
    */
   json_import_project_cfg_path: string = "";
+
+  /**
+   * ts保存路径
+   */
+  ts_save_path: string = "";
+  ts_merge: boolean = false;
+  ts_file_name: string = "GameTsCfg";
+  exportTs: boolean = false;
   /**
    * 导出JavaScript
    */
@@ -94,6 +102,7 @@ export class ConfigData {
   expand_excel: boolean = true;
   expand_json: boolean = true;
   expand_js: boolean = true;
+  expand_ts: boolean = true;
   expand_lua: boolean = true;
   expand_export: boolean = true;
 }
