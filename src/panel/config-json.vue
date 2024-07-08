@@ -24,11 +24,11 @@
       <CCInput @click="onBtnClickOpenJsonSavePath" v-model:value="config.json_save_path" :disabled="true" :readonly="true" :directory="true"></CCInput>
       <CCButton @confirm="onChooseJsonSavePath"><i class="iconfont icon_folder"></i></CCButton>
     </CCProp>
-    <CCProp v-if="!isWeb" name="导入项目路径" tooltip="将生产的json配置导入到项目中">
+    <CCProp v-if="!isWeb && false" name="导入项目路径" tooltip="将生产的json配置导入到项目中">
       <CCInput @click="onOpenProjectJsonCfgPath" :readonly="true" :directory="true" :disabled="true" v-model:value="config.json_import_project_cfg_path"></CCInput>
       <CCButton @confirm="onBtnClickSelectProjectJsonCfgPath"><i class="iconfont icon_folder"></i></CCButton>
     </CCProp>
-    <div class="import" v-if="!isWeb">
+    <div class="import" v-if="!isWeb && false">
       <CCButton @confirm="onBtnClickImportProjectJsonCfg_Server">导入服务端配置</CCButton>
       <CCButton @confirm="onBtnClickImportProjectJsonCfg_Client">导入客户端配置</CCButton>
     </div>
