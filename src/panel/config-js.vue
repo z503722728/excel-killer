@@ -1,5 +1,8 @@
 <template>
   <CCSection name="配置-JavaScript" :expand="config.expand_js" @change="onChangExpand">
+    <CCProp name="导出" align="left">
+      <CCCheckBox v-model:value="config.exportJs" @change=""> </CCCheckBox>
+    </CCProp>
     <CCProp name="Js存放路径:" v-if="!isWeb">
       <CCInput v-model:value="config.js_save_path" @click="onBtnClickOpenJsSavePath" :directory="true" disabled></CCInput>
       <CCButton @confirm="onChooseJsSavePath"><i class="iconfont icon_folder"></i></CCButton>

@@ -5,6 +5,9 @@
         <div class="fill"></div>
       </div>
     </template>
+    <CCProp name="导出" tooltip="" align="left">
+      <CCCheckBox v-model:value="config.exportJson" @change=""> </CCCheckBox>
+    </CCProp>
     <CCProp name="合并所有Json" align="left" tooltip="[√]勾选,所有的配置将合并为一个json文件<br>[×]未勾选,每个sheet对应一个json文件">
       <CCCheckBox v-model:value="config.json_merge"></CCCheckBox>
     </CCProp>
