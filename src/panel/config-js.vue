@@ -1,8 +1,8 @@
 <template>
   <CCSection name="配置-JavaScript" :expand="config.expand_js" @change="onChangExpand">
     <CCProp name="Js存放路径:" v-if="!isWeb">
-      <CCInput v-model:value="config.js_save_path" disabled></CCInput>
-      <CCButton color="green" @confirm="onBtnClickOpenJsSavePath"><i class="iconfont icon_folder"></i></CCButton>
+      <CCInput v-model:value="config.js_save_path" @click="onBtnClickOpenJsSavePath" :directory="true" disabled></CCInput>
+      <CCButton @confirm="onChooseJsSavePath"><i class="iconfont icon_folder"></i></CCButton>
     </CCProp>
     <CCProp name="合并所有Js" align="left" tooltip="[√]勾选,所有的配置将合并为一个js文件<br>[×]未勾选,每个sheet对应一个js文件">
       <CCCheckBox v-model:value="config.js_merge"></CCCheckBox>
@@ -57,14 +57,21 @@ export default defineComponent({
       },
       onBtnClickOpenJsSavePath() {
         const jsSavePath = toRaw(appStore().config.js_save_path);
-        const client = join(jsSavePath, DirClientName);
-        const server = join(jsSavePath, DirServerName);
-        if (existsSync(client)) {
-          CCP.Adaptation.Dialog.open(client);
+        CCP.Adaptation.Shell.showItem(jsSavePath);
+      },
+      async onChooseJsSavePath() {
+        const ret = await CCP.Adaptation.Dialog.select({
+          title: "选择保存目录",
+          type: "directory",
+          multi: false,
+          fillData: true,
+        });
+        const dirs = Object.keys(ret);
+        if (!dirs.length) {
+          return;
         }
-        if (existsSync(server)) {
-          CCP.Adaptation.Dialog.open(server);
-        }
+        appStore().config.js_save_path = dirs[0];
+        appStore().save();
       },
     };
   },

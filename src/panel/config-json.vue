@@ -18,16 +18,16 @@
       <CCCheckBox v-model:value="config.json_format"></CCCheckBox>
     </CCProp>
     <CCProp name="Json存放路径:" v-if="!isWeb">
-      <CCInput v-model:value="config.json_save_path" disabled></CCInput>
-      <CCButton @confirm="onBtnClickOpenJsonSavePath"><i class="iconfont icon_folder"></i></CCButton>
+      <CCInput @click="onBtnClickOpenJsonSavePath" v-model:value="config.json_save_path" :disabled="true" :readonly="true" :directory="true"></CCInput>
+      <CCButton @confirm="onChooseJsonSavePath"><i class="iconfont icon_folder"></i></CCButton>
     </CCProp>
     <CCProp v-if="!isWeb" name="导入项目路径" tooltip="将生产的json配置导入到项目中">
-      <CCInput readonly v-model:value="config.json_import_project_cfg_path"></CCInput>
-      <CCButton @confirm="onBtnClickSelectProjectJsonCfgPath">选择</CCButton>
+      <CCInput @click="onOpenProjectJsonCfgPath" :readonly="true" :directory="true" :disabled="true" v-model:value="config.json_import_project_cfg_path"></CCInput>
+      <CCButton @confirm="onBtnClickSelectProjectJsonCfgPath"><i class="iconfont icon_folder"></i></CCButton>
     </CCProp>
     <div class="import" v-if="!isWeb">
-      <CCButton @confirm="onBtnClickImportProjectJsonCfg_Server" class="red">导入服务端配置</CCButton>
-      <CCButton @confirm="onBtnClickImportProjectJsonCfg_Client" class="red">导入客户端配置</CCButton>
+      <CCButton @confirm="onBtnClickImportProjectJsonCfg_Server">导入服务端配置</CCButton>
+      <CCButton @confirm="onBtnClickImportProjectJsonCfg_Client">导入客户端配置</CCButton>
     </div>
   </CCSection>
 </template>
@@ -66,29 +66,40 @@ export default defineComponent({
           CCP.Adaptation.Dialog.open(server);
         }
       },
+      async onOpenProjectJsonCfgPath() {
+        const path = toRaw(appStore().config.json_import_project_cfg_path);
+        CCP.Adaptation.Shell.showItem(path);
+      },
       async onBtnClickSelectProjectJsonCfgPath() {
         const ret = await CCP.Adaptation.Dialog.select({
           title: "选择项目配置存放目录",
           type: "directory",
         });
         const dirs = Object.keys(ret);
-        if (dirs.length) {
+        if (!dirs.length) {
           return;
         }
         const dir = dirs[0];
         appStore().config.json_import_project_cfg_path = dir;
         appStore().save();
       },
+      async onChooseJsonSavePath() {
+        const ret = await CCP.Adaptation.Dialog.select({
+          title: "选择保存目录",
+          type: "directory",
+          multi: false,
+          fillData: true,
+        });
+        const dirs = Object.keys(ret);
+        if (!dirs.length) {
+          return;
+        }
+        appStore().config.json_save_path = dirs[0];
+        appStore().save();
+      },
       onBtnClickOpenJsonSavePath() {
         const jsonSavePath = toRaw(appStore().config.json_save_path);
-        const client = join(jsonSavePath, DirClientName);
-        const server = join(jsonSavePath, DirServerName);
-        if (existsSync(client)) {
-          CCP.Adaptation.Dialog.open(client);
-        }
-        if (existsSync(server)) {
-          CCP.Adaptation.Dialog.open(server);
-        }
+        CCP.Adaptation.Shell.showItem(jsonSavePath);
       },
       async onBtnClickImportProjectJsonCfg_Server() {
         await importJsonCfg(DirServerName);

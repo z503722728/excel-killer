@@ -10,17 +10,18 @@ export async function importJsonCfg(typeDir: string) {
     ccui.footbar.showError("导入项目路径不存在:" + importProjectCfgPath);
     return;
   }
-
-  if (!this.isExportJson) {
+  const isExportJson = toRaw(appStore().config).exportJson;
+  if (!isExportJson) {
     ccui.footbar.showError("[Warning] 您未勾选导出Json配置,可能导入的配置时上个版本的!");
   }
 
   const importPath = CCP.Adaptation.Util.fspathToUrl(importProjectCfgPath);
   if (!importPath.startsWith("db://assets")) {
-    ccui.footbar.showError("非项目路径,无法导入 : " + importProjectCfgPath);
+    ccui.footbar.showError("不是项目路径,无法导入: " + importProjectCfgPath);
     return;
   }
-  const clientDir = join(this.jsonSavePath, typeDir);
+  const jsonSavePath = toRaw(appStore().config).json_save_path;
+  const clientDir = join(jsonSavePath, typeDir);
   if (!existsSync(clientDir)) {
     ccui.footbar.showError("配置目录不存在:" + clientDir);
     return;

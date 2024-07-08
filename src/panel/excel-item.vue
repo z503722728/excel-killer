@@ -3,8 +3,12 @@
     <div class="box">
       <CCCheckBox :value="data.isUse" @:change="onBtnClickUse" :label="(index + 1).toString()"> </CCCheckBox>
     </div>
-    <div class="box">{{ data.name }}</div>
-    <div class="box">{{ data.sheet }}</div>
+    <div class="box">
+      <div class="label">{{ data.name }}</div>
+    </div>
+    <div class="box">
+      <div class="label">{{ data.sheet }}</div>
+    </div>
   </div>
 </template>
 
@@ -78,6 +82,11 @@ export default defineComponent({
     line-height: 14px;
     height: 20px;
     padding: 0;
+    .label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 }
 </style>

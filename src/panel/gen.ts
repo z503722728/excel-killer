@@ -85,7 +85,6 @@ export class Gen {
   private jsonAllServerData = {};
 
   async doWork(data: ItemData[]): Promise<void> {
-    debugger;
     // 删除老的配置
     const jsonClient = join(this.jsonSavePath, DirClientName);
     const jsonServer = join(this.jsonSavePath, DirServerName);

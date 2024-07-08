@@ -5,10 +5,10 @@
     </template>
     <CCProp v-show="true" name="Excel文件夹路径:" tooltip="插件会循环遍历出目录下所有的excel文件">
       <div class="path">
-        <CCInput placeholder="请选择Excel目录" disabled v-model:value="config.excel_root_path" :directory="true"></CCInput>
+        <CCInput @click="onOpenExcelRootPath" placeholder="请选择Excel目录" disabled v-model:value="config.excel_root_path" :directory="true"></CCInput>
         <CCButton @confirm="onBtnClickSelectExcelRootPath"><i class="iconfont icon_folder"></i></CCButton>
         <CCButton v-show="config.excel_root_path && config.excel_root_path.length > 0" @confirm="onBtnClickFreshExcel">
-          <i class="iconfont icon_fresh"></i>
+          <i class="iconfont icon_refresh"></i>
         </CCButton>
       </div>
     </CCProp>
@@ -17,8 +17,8 @@
         <div class="box">
           <CCCheckBox label="序号" @change="onBtnClickSelectSheet"></CCCheckBox>
         </div>
-        <div class="box">Excel文件</div>
-        <div class="box">工作表名称</div>
+        <div class="box"><div class="label">Excel文件</div></div>
+        <div class="box"><div class="label">工作表名称</div></div>
       </div>
       <div class="excel-content ccui-scrollbar">
         <ExcelItem track-by="$index" v-for="(item, index) in excelArray" :data="item" :index="index"> </ExcelItem>
@@ -73,6 +73,7 @@ export default defineComponent({
           gen.ready(cfg);
           gen.check();
           await gen.doWork(data);
+          ccui.footbar.showTips("generate success");
         } catch (e: any) {
           ccui.footbar.showError(e.message);
         }
@@ -87,7 +88,11 @@ export default defineComponent({
     });
     async function fresh() {
       const path = toRaw(config.value.excel_root_path);
-      await onAnalyzeExcelDirPath(path);
+      try {
+        await onAnalyzeExcelDirPath(path);
+      } catch (e: any) {
+        ccui.footbar.showError(e.message);
+      }
     }
     // 查找出目录下的所有excel文件
     async function onAnalyzeExcelDirPath(dir: string) {
@@ -169,6 +174,10 @@ export default defineComponent({
         appStore().config.expand_excel = !!expand;
         appStore().save();
       },
+      onOpenExcelRootPath() {
+        const path = toRaw(appStore().config.excel_root_path);
+        CCP.Adaptation.Shell.showItem(path);
+      },
       async onBtnClickSelectExcelRootPath() {
         const ret = await CCP.Adaptation.Dialog.select({
           title: "选择Excel的根目录",
@@ -231,6 +240,7 @@ export default defineComponent({
       flex-direction: row;
       align-items: center;
       .box {
+        overflow: hidden;
         flex: 1;
         font-size: 13px;
         line-height: 14px;
@@ -241,6 +251,11 @@ export default defineComponent({
         display: flex;
         flex-direction: row;
         align-items: center;
+        .label {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
       }
     }
     .excel-content {
