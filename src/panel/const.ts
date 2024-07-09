@@ -105,6 +105,7 @@ export class ConfigData {
   expand_ts: boolean = true;
   expand_lua: boolean = true;
   expand_export: boolean = true;
+  expand_sql: boolean = true;
 }
 
 export const DirClientName = "client";

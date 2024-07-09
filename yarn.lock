@@ -1988,10 +1988,10 @@ case-sensitive-paths-webpack-plugin@^2.3.0:
   resolved "https://registry.yarnpkg.com/case-sensitive-paths-webpack-plugin/-/case-sensitive-paths-webpack-plugin-2.4.0.tgz#db64066c6422eed2e08cc14b986ca43796dbc6d4"
   integrity sha512-roIFONhcxog0JSSWbvVAh3OocukmSgpqOH6YpMkCvav/ySIV3JKg4Dc8vYtQjYi/UxpNE36r/9v+VqTQqgkYmw==
 
-cc-plugin@^2.1.51:
-  version "2.1.51"
-  resolved "https://registry.yarnpkg.com/cc-plugin/-/cc-plugin-2.1.51.tgz#0e2af5ed7362fa87dda06bfe1d8a1e09137e1239"
-  integrity sha512-hANtfEWh+SW8FM/eyzO3COz5z6cFkCJhwEM839wHHYmuvT04QZJS9JqmPseuswwmiLQawrhP9/Ii0ziHLLj2Lw==
+cc-plugin@^2.1.52:
+  version "2.1.52"
+  resolved "https://registry.yarnpkg.com/cc-plugin/-/cc-plugin-2.1.52.tgz#a80850b49266cca23f2d35a4747daf57a0437a22"
+  integrity sha512-iIkUwC/dMHcDvVBKPHz8i+g3lok+Rx2OaVapGDkwhpPAMygK9wzozD733jNBPrqOsgHkEWzF4Dx5uhIfYoxvRg==
   dependencies:
     "@babel/generator" "^7.16.8"
     "@popperjs/core" "^2.11.6"
@@ -6877,6 +6877,11 @@ split-string@^3.0.1, split-string@^3.0.2:
   integrity sha512-NzNVhJDYpwceVVii8/Hu6DKfD2G+NrQHlS/V/qgv763EYudVwEcMQNxd2lh+0VrUByXN/oJkl5grOhYWvQUYiw==
   dependencies:
     extend-shallow "^3.0.0"
+
+sql.js@^1.10.3:
+  version "1.10.3"
+  resolved "https://registry.yarnpkg.com/sql.js/-/sql.js-1.10.3.tgz#cd05043a9e2667010cd0520180577c90df8dd990"
+  integrity sha512-H46aWtQkdyjZwFQgraUruy5h/DyJBbAK3EA/WEMqiqF6PGPfKBSKBj/er3dVyYqVIoYfRf5TFM/loEjtQIrqJg==
 
 ssri@^8.0.1:
   version "8.0.1"

@@ -6,6 +6,7 @@
       <ConfigJs></ConfigJs>
       <ConfigJson></ConfigJson>
       <ExportConfig></ExportConfig>
+      <ConfigSql v-if="isWeb"></ConfigSql>
     </div>
 
     <div class="bottom">
@@ -26,6 +27,7 @@ import ConfigJson from "./config-json.vue";
 import ConfigJs from "./config-js.vue";
 import Excel from "./excel.vue";
 import ConfigTs from "./config-ts.vue";
+import ConfigSql from "./config-sql.vue";
 import { appStore } from "./store";
 import { existsSync, mkdirSync } from "fs";
 import chokidar from "chokidar";
@@ -36,10 +38,10 @@ import { Gen } from "./gen";
 const { CCInput, CCButton, CCProp, CCSection, CCCheckBox, CCDialog, CCMenu, CCFootBar } = ccui.components;
 export default defineComponent({
   name: "index",
-  components: { ConfigTs, Excel, CCButton, CCInput, CCProp, CCSection, CCDialog, CCMenu, CCFootBar, CCCheckBox, ExportConfig, ConfigJson, ConfigJs },
+  components: { ConfigSql, ConfigTs, Excel, CCButton, CCInput, CCProp, CCSection, CCDialog, CCMenu, CCFootBar, CCCheckBox, ExportConfig, ConfigJson, ConfigJs },
   setup() {
     appStore().init();
-    onMounted(() => {
+    onMounted(async () => {
       ccui.footbar.registerCmd({
         icon: "qq",
         cb() {
@@ -64,7 +66,9 @@ export default defineComponent({
       });
     });
     const version = ref(PluginConfig.manifest.version);
+    const isWeb = ref(CCP.Adaptation.Env.isWeb);
     return {
+      isWeb,
       version,
       onBtnClickGen() {
         emitter.emit(Msg.Gen);
