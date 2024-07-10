@@ -5,7 +5,8 @@
     </template>
     <CCProp v-show="true" name="Excel文件夹路径:" align="left" tooltip="插件会循环遍历出目录下所有的excel文件">
       <div class="path">
-        <CCInput @click="onOpenExcelRootPath" placeholder="请选择Excel目录" disabled v-model:value="config.excel_root_path" :directory="true"></CCInput>
+        <CCInput @click="onOpenExcelRootPath" placeholder="请选择Excel目录" disabled v-model:value="config.excel_root_path"
+          :directory="true"></CCInput>
         <CCButton @confirm="onBtnClickSelectExcelRootPath"><i class="iconfont icon_folder"></i></CCButton>
         <CCButton v-show="config.excel_root_path && config.excel_root_path.length > 0" @confirm="onBtnClickFreshExcel">
           <i class="iconfont icon_refresh"></i>
@@ -17,8 +18,12 @@
         <div class="box">
           <CCCheckBox label="序号" @change="onBtnClickSelectSheet"></CCCheckBox>
         </div>
-        <div class="box"><div class="label">Excel文件</div></div>
-        <div class="box"><div class="label">工作表名称</div></div>
+        <div class="box">
+          <div class="label">Excel文件</div>
+        </div>
+        <div class="box">
+          <div class="label">工作表名称</div>
+        </div>
       </div>
       <div class="excel-content ccui-scrollbar">
         <ExcelItem track-by="$index" v-for="(item, index) in excelArray" :data="item" :index="index"> </ExcelItem>
@@ -68,15 +73,15 @@ export default defineComponent({
       (async () => {
         const data = toRaw(excelArray.value).filter((item) => item.isUse);
         const gen = new Gen();
-        try {
+        // try {
           const cfg = toRaw(appStore().config);
           gen.ready(cfg);
           gen.check();
           await gen.doWork(data);
           ccui.footbar.showTips("generate success");
-        } catch (e: any) {
-          ccui.footbar.showError(e.message);
-        }
+        // } catch (e: any) {
+        //   ccui.footbar.showError(e.message);
+        // }
       })();
     }
     onMounted(async () => {
@@ -122,6 +127,7 @@ export default defineComponent({
       excelArray.value.length = 0;
       const excelSheetArray = [];
       const sheetDuplicationChecker: Record<string, ItemData> = {};
+      let isTiped = false;
       for (let path in data) {
         const bufferData = data[path];
         const excelData = nodeXlsx.parse(bufferData);
@@ -136,6 +142,16 @@ export default defineComponent({
           };
           if (excel.data.length === 0) {
             console.log(`[Error] 空Sheet: ${itemData.name} - ${itemData.sheet}`);
+            continue;
+          }
+          // 跳过名称为 "SheetXXX" 或包含中文的 sheet
+          if (/^Sheet\d+$/.test(itemData.sheet) || /[\u4e00-\u9fa5]/.test(itemData.sheet)) {
+            // console.log(`skip sheet: ${itemData.name} in ${itemData.fullPath}`);
+            if(!isTiped)
+            {
+              ccui.footbar.showTips(`[警告] 名称为 "SheetXXX" 或包含中文的 sheet 会自动跳过`);
+              isTiped = true;
+            }
             continue;
           }
           const old = sheetDuplicationChecker[itemData.sheet];
@@ -220,12 +236,14 @@ export default defineComponent({
     font-size: 13px;
     user-select: none;
   }
+
   .path {
     flex: 1;
     display: flex;
     flex-direction: row;
     align-items: center;
   }
+
   .excel-box {
     margin-left: 16px;
     border: #686868 1px solid;
@@ -235,11 +253,13 @@ export default defineComponent({
     overflow: hidden;
     display: flex;
     flex-direction: column;
+
     .excel-title {
       color: white;
       display: flex;
       flex-direction: row;
       align-items: center;
+
       .box {
         overflow: hidden;
         flex: 1;
@@ -252,6 +272,7 @@ export default defineComponent({
         display: flex;
         flex-direction: row;
         align-items: center;
+
         .label {
           overflow: hidden;
           text-overflow: ellipsis;
@@ -259,6 +280,7 @@ export default defineComponent({
         }
       }
     }
+
     .excel-content {
       min-height: 100px;
       max-height: 300px;

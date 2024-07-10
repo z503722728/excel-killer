@@ -348,7 +348,7 @@ export class Gen {
       const comment = desc[i];
       const rule = ruleText[i];
       if (key && rule) {
-        typeLines.push(`  /** ${comment} */\n  ${key}: ${this.getTypeScriptType(rule)};`);
+        typeLines.push(`  /** ${comment} */\n  ${key}?: ${this.getTypeScriptType(rule)};`);
       }
     }
     ret.types = `export interface I${itemSheet.name.split(".")[0]} {\n${typeLines.join('\n')}\n}\n\n`;
@@ -361,11 +361,11 @@ export class Gen {
         continue;
       }
       if (lineData.length < title.length) {
-        throw new Error(`配置数据缺失:${itemSheet.name}:${itemSheet.sheet}:${line + 1}`);
+        // throw new Error(`配置数据缺失:${itemSheet.name}:${itemSheet.sheet}:${line + 1}`);
       }
 
       const saveLineData = { server: {}, client: {} };
-      for (let idx = 0; idx < title.length; idx++) {
+      for (let idx = 0; idx < title.length && idx < lineData.length; idx++) {
         const key = title[idx];
         if (!key || !ruleText[idx]) continue;
         const rule = ruleText[idx].trim();
@@ -376,6 +376,8 @@ export class Gen {
         let value = lineData[idx] || "";
         if (value) {
           value = this.cutString(rule, value);
+        } else {
+          continue;
         }
         if (this.isClientField(target[idx])) {
           saveLineData.client[key] = value;
@@ -624,9 +626,9 @@ export class Gen {
     else if (rule.search("\\[]int") != -1) {
       // 可能为1,1 {1,1,1,20} 0|110|0 {{101,5},{102,5}} {{{101,50,0}},{{102,50,500}}} 等
       const dimensions = (rule.match(/\[/g) || []).length; // 计算维度
-
+      text = text.toString();
       if (dimensions === 1) {
-        result = text.toString().split(/[|,{}]/).filter(Boolean).map(Number);
+        result = text.split(/[|,{}]/).filter(Boolean).map(Number);
       } else if (dimensions === 2) {
         result = text.split(/[{}]/).filter(Boolean).map(item => item.split(",").map(Number));
       } else if (dimensions === 3) {
@@ -640,7 +642,7 @@ export class Gen {
     // 字符串 数组 等
     else if (rule.search("\\[]string") != -1) {
       const dimensions = (rule.match(/\[/g) || []).length; // 计算维度
-
+      text = text.toString();
       if (dimensions === 1) {
         result = text.split(/[{}]/).filter(Boolean).map(item => item.split(/[,|]/));
       } else if (dimensions === 2) {
