@@ -46,6 +46,7 @@ const options: CocosPluginOptions = {
   watchBuild: true,
   outputProject: {
     web: "./web",
+    v3: "F:\\UProjects\\excel-killer\\v3",
   },
 };
 export default { manifest, options };

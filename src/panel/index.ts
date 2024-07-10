@@ -9,6 +9,7 @@ import { createPinia } from "pinia";
 export default CCP.init(pluginConfig, {
   ready: function (rootElement: any, args: any) {
     const app = createApp(App);
+    // @ts-ignore
     app.use(ccui);
     app.use(createPinia());
     app.mount(rootElement);
