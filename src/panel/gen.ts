@@ -1,5 +1,5 @@
-import { emptyDirSync, existsSync, writeFileSync } from "fs-extra";
-import { basename, join } from "path";
+import { emptyDirSync, existsSync, mkdirSync, writeFileSync } from "fs-extra";
+import { basename, dirname, join } from "path";
 import { ConfigData, DirClientName, DirServerName, ItemData } from "./const";
 import CCP from "cc-plugin/src/ccp/entry-render";
 import jszip from "jszip";
@@ -177,6 +177,10 @@ export class Gen {
   }
   private saveTsFile(data: any, path: string, zip: null | jszip) {
     const str = "export default " + JSON.stringify(data, null, 2) + ";";
+    // 如果不存在目录 需要创建目录
+    if (!existsSync(dirname(path))) {
+      mkdirSync(dirname(path));
+    }
     writeFileSync(path, str);
     console.log("[TypeScript]" + path);
     zip && zip.file(path, str);
@@ -196,9 +200,11 @@ export class Gen {
         this.saveJsonFile(this.jsonAllServerData, fullPath, zip);
       }
     } else {
+      let isExportTwo = this.isExportClient && this.isExportServer;
+
       if (this.isExportClient) {
         for (const key in this.jsonAllClientData) {
-          const fullPath = join(this.jsonSavePath, DirClientName, `${key}.json`);
+          const fullPath = join(this.jsonSavePath, isExportTwo ? DirClientName : "", `${key}.json`);
           const data = this.jsonAllClientData[key];
           this.saveJsonFile(data, fullPath, zip);
 
@@ -212,7 +218,7 @@ export class Gen {
       if (this.isExportServer) {
         for (const key in this.jsonAllServerData) {
           const data = this.jsonAllServerData[key];
-          const fullPath = join(this.jsonSavePath, DirServerName, `${key}.json`);
+          const fullPath = join(this.jsonSavePath, isExportTwo ? DirServerName : "", `${key}.json`);
           this.saveJsonFile(data, fullPath, zip);
         }
       }
@@ -252,6 +258,10 @@ export class Gen {
   private saveJsonTypeFile(data: any, path: string, zip: null | jszip) {
     const typeName = basename(path);
     const fullPath = join(this.tsSavePath, DirClientName, `${typeName.split(".")[0]}.ts`);
+    // 如果不存在目录 需要创建目录
+    if (!existsSync(dirname(fullPath))) {
+      mkdirSync(dirname(fullPath));
+    }
     writeFileSync(fullPath, data);
     console.log("[TypeScript]:" + fullPath);
     zip && zip.file(fullPath, data);
@@ -393,6 +403,10 @@ export class Gen {
   }
   saveJsonFile(data: any, path: string, zip: null | jszip) {
     const str = JSON.stringify(data, null, this.isFormatJson ? 2 : 0);
+    // 如果不存在目录 需要创建目录
+    if (!existsSync(dirname(path))) {
+      mkdirSync(dirname(path));
+    }
     writeFileSync(path, str);
     console.log("[Json]:" + path);
     zip && zip.file(path, str);
@@ -400,6 +414,10 @@ export class Gen {
   }
   saveJavaScriptFile(path: string, data: any, zip: null | jszip) {
     const str = "module.exports =" + JSON.stringify(data, null, this.isFormatJsCode ? 2 : 0) + ";";
+    // 如果不存在目录 需要创建目录
+    if (!existsSync(dirname(path))) {
+      mkdirSync(dirname(path));
+    }
     writeFileSync(path, str);
     console.log("[JavaScript]" + path);
     zip && zip.file(path, str);
