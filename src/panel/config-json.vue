@@ -20,6 +20,9 @@
     <CCProp name="Json格式化" align="left" tooltip=" [√]勾选,json将格式化后保存<br>[×]未勾选,json将保存为单行文件">
       <CCCheckBox v-model:value="config.json_format"></CCCheckBox>
     </CCProp>
+    <CCProp name="导出 JSON 时生成 TypeScript 类型声明文件" align="left">
+      <CCCheckBox v-model:value="config.exportJsonType"></CCCheckBox>
+    </CCProp>
     <CCProp name="Json存放路径:" v-if="!isWeb">
       <CCInput @click="onBtnClickOpenJsonSavePath" v-model:value="config.json_save_path" :disabled="true" :readonly="true" :directory="true"></CCInput>
       <CCButton @confirm="onChooseJsonSavePath"><i class="iconfont icon_folder"></i></CCButton>
@@ -68,6 +71,10 @@ export default defineComponent({
         if (existsSync(server)) {
           CCP.Adaptation.Dialog.open(server);
         }
+      },
+      onChangExportJsonType(value: boolean) {
+        appStore().config.exportJsonType = value;
+        appStore().save();
       },
       async onOpenProjectJsonCfgPath() {
         const path = toRaw(appStore().config.json_import_project_cfg_path);

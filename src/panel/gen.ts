@@ -1,5 +1,5 @@
 import { emptyDirSync, existsSync, writeFileSync } from "fs-extra";
-import { join } from "path";
+import { basename, join } from "path";
 import { ConfigData, DirClientName, DirServerName, ItemData } from "./const";
 import CCP from "cc-plugin/src/ccp/entry-render";
 import jszip from "jszip";
@@ -13,6 +13,7 @@ export class Gen {
   private isExportServer: boolean = false;
   private isExportClient: boolean = false;
   private isExportJson: boolean = false;
+  private exportJsonType: boolean = false;
   private isExportTs: boolean = false;
   private jsSavePath: string = "";
   private tsSavePath: string = "";
@@ -36,6 +37,7 @@ export class Gen {
     this.isExportClient = cfg.exportClient;
 
     this.isExportJson = cfg.exportJson;
+    this.exportJsonType = cfg.exportJsonType;
     this.isExportJs = cfg.exportJs;
     this.isExportTs = cfg.exportTs;
 
@@ -87,6 +89,7 @@ export class Gen {
    * 保存客户端的json数据
    */
   private jsonAllClientData = {};
+  private jsonAllTypeData = {};
   /**
    * 保存服务端的json数据
    * @example
@@ -198,7 +201,13 @@ export class Gen {
           const fullPath = join(this.jsonSavePath, DirClientName, `${key}.json`);
           const data = this.jsonAllClientData[key];
           this.saveJsonFile(data, fullPath, zip);
+
+          if (this.exportJsonType) {
+            let typeData = this.jsonAllTypeData[key];
+            this.saveJsonTypeFile(typeData, fullPath, zip)
+          }
         }
+
       }
       if (this.isExportServer) {
         for (const key in this.jsonAllServerData) {
@@ -240,20 +249,81 @@ export class Gen {
     }
   }
 
-  private flushExcelData(itemSheet: ItemData, all: any, data: any) {
+  private saveJsonTypeFile(data: any, path: string, zip: null | jszip) {
+    const typeName = basename(path);
+    const fullPath = join(this.tsSavePath, DirClientName, `${typeName.split(".")[0]}.ts`);
+    writeFileSync(fullPath, data);
+    console.log("[TypeScript]:" + fullPath);
+    zip && zip.file(fullPath, data);
+  }
+
+  private getTypeScriptType(rule: string): string {
+    if (rule.search(/^(int|number)$/i) !== -1) {
+      return 'number';
+    } else if (rule.search(/^(string)$/i) !== -1) {
+      return 'string';
+    } else if (rule.search(/^(bool|boolean)$/i) !== -1) {
+      return 'boolean';
+    } else if (rule.search(/^(object)$/i) !== -1) {
+      return 'object';
+    } else if (rule.search(/^(any)$/i) !== -1) {
+      return 'any';
+    } else if (rule.search(/Array\[Object\{[a-zA-Z0-9\[\]:,"]*\}\]/) !== -1) {
+      const keys = this.extractKeys(rule);
+      const keyTypes = keys.map(key => `${key}: ${this.getTypeScriptType(this.extractType(rule, key))}`);
+      return `Array<{${keyTypes.join('; ')}}>`;
+    } else if (rule.search(/Array\[Array\[Number\]\]/) === 0 || rule.search(/Array\[Number\]/) === 0) {
+      return 'number[][]';
+    } else if (rule.search(/Array\[String\]/) === 0) {
+      return 'string[]';
+    } else if (rule.search(/Array\[Array\[String\]\]/) === 0) {
+      return 'string[][]';
+    } else if (rule.search(/Object\{[a-zA-Z0-9\[\]:,"]*\}/) === 0) {
+      const keys = this.extractKeys(rule);
+      const keyTypes = keys.map(key => `${key}: ${this.getTypeScriptType(this.extractType(rule, key))}`);
+      return `{${keyTypes.join('; ')}}`;
+    } else if (rule.search(/\[]int/) !== -1) {
+      const dimensions = (rule.match(/\[/g) || []).length;
+      return `number${new Array(dimensions).fill('[]').join('')}`;
+    } else if (rule.search(/\[]string/) !== -1) {
+      const dimensions = (rule.match(/\[/g) || []).length;
+      return `string${new Array(dimensions).fill('[]').join('')}`;
+    } else {
+      return 'any';
+    }
+  }
+
+  private extractKeys(rule: string): string[] {
+    const keys: string[] = [];
+    const regex = /"([a-zA-Z0-9]*)"/g;
+    let match: RegExpExecArray | null;
+    while ((match = regex.exec(rule)) !== null) {
+      keys.push(match[1]);
+    }
+    return keys;
+  }
+
+  private extractType(rule: string, key: string): string {
+    const regex = new RegExp(`"${key}":\\s*([a-zA-Z0-9\\[\\]{}:,"]*)`, 'g');
+    const match = regex.exec(rule);
+    return match ? match[1] : 'any';
+  }
+
+  private flushExcelData(itemSheet: ItemData, all: any, data: any, types: string) {
     const { sheet, name } = itemSheet;
     if (Object.keys(data).length > 0) {
       if (all[sheet] === undefined) {
         all[sheet] = data;
+        this.jsonAllTypeData[sheet] = types;
       } else {
         throw new Error(`发现重名sheet: ${name}:${sheet}`);
       }
     }
   }
   private parseExcelData(itemSheet: ItemData) {
-    const { client, server } = this.splitData(itemSheet);
-    this.flushExcelData(itemSheet, this.jsonAllClientData, client);
-    this.flushExcelData(itemSheet, this.jsonAllServerData, server);
+    const { client, server, types } = this.splitData(itemSheet);
+    this.flushExcelData(itemSheet, this.jsonAllClientData, client, types);
+    this.flushExcelData(itemSheet, this.jsonAllServerData, server, types);
   }
 
   private isServerField(str: string) {
@@ -262,7 +332,7 @@ export class Gen {
   private isClientField(str: string) {
     return str.indexOf("c") !== -1;
   }
-  private splitData(itemSheet: ItemData): { server: any; client: any } {
+  private splitData(itemSheet: ItemData): { server: any; client: any, types: string } {
     const excelData: any[][] = itemSheet.buffer;
     const title = excelData[0];
     const desc = excelData[1];
@@ -271,7 +341,17 @@ export class Gen {
      */
     const target = excelData[2];
     const ruleText = excelData[3];
-    const ret = { server: {}, client: {} };
+    const ret = { server: {}, client: {}, types: '' };
+    const typeLines: string[] = [];
+    for (let i = 0; i < title.length; i++) {
+      const key = title[i];
+      const comment = desc[i];
+      const rule = ruleText[i];
+      if (key && rule) {
+        typeLines.push(`  /** ${comment} */\n  ${key}: ${this.getTypeScriptType(rule)};`);
+      }
+    }
+    ret.types = `export interface I${itemSheet.name.split(".")[0]} {\n${typeLines.join('\n')}\n}\n\n`;
 
     for (let line = 4; line < excelData.length; line++) {
       const lineData = excelData[line];
@@ -287,7 +367,7 @@ export class Gen {
       const saveLineData = { server: {}, client: {} };
       for (let idx = 0; idx < title.length; idx++) {
         const key = title[idx];
-        if(!key || !ruleText[idx]) continue;
+        if (!key || !ruleText[idx]) continue;
         const rule = ruleText[idx].trim();
         if (key === "Empty" || rule === "Empty") {
           continue;

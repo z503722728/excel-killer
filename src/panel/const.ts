@@ -39,6 +39,10 @@ export class ConfigData {
    */
   exportJson: boolean = false;
   /**
+   * 是否生成 TypeScript 类型声明文件
+   */
+  exportJsonType: boolean = true;
+  /**
    * 合并所有json
    */
   json_merge: boolean = false;
@@ -49,7 +53,7 @@ export class ConfigData {
   /**
    * 格式化json
    */
-  json_format: boolean = false;
+  json_format: boolean = true;
   /**
    * json的保存路径
    */
