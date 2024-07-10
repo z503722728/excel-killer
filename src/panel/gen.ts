@@ -21,6 +21,7 @@ export class Gen {
   private isExportJs: boolean = false;
   private isMergeJavaScript: boolean = false;
   private isMergeTs: boolean = false;
+  private isExportTwo: boolean = false;
   private _addLog(log: string) {
     throw new Error(log);
   }
@@ -190,27 +191,27 @@ export class Gen {
     if (!this.isExportJson) {
       return;
     }
+
+    this.isExportTwo = this.isExportClient && this.isExportServer;
     if (this.isMergeJson) {
       if (this.isExportClient) {
-        const fullPath = join(this.jsonSavePath, DirClientName, `${this.jsonFileName}.json`);
+        const fullPath = join(this.jsonSavePath, this.isExportTwo ? DirClientName : "", `${this.jsonFileName}.json`);
         this.saveJsonFile(this.jsonAllClientData, fullPath, zip);
       }
       if (this.isExportServer) {
-        const fullPath = join(this.jsonSavePath, DirServerName, `${this.jsonFileName}.json`);
+        const fullPath = join(this.jsonSavePath, this.isExportTwo ? DirServerName : "", `${this.jsonFileName}.json`);
         this.saveJsonFile(this.jsonAllServerData, fullPath, zip);
       }
     } else {
-      let isExportTwo = this.isExportClient && this.isExportServer;
-
       if (this.isExportClient) {
         for (const key in this.jsonAllClientData) {
-          const fullPath = join(this.jsonSavePath, isExportTwo ? DirClientName : "", `${key}.json`);
+          const fullPath = join(this.jsonSavePath, this.isExportTwo ? DirClientName : "", `${key}.json`);
           const data = this.jsonAllClientData[key];
           this.saveJsonFile(data, fullPath, zip);
 
           if (this.exportJsonType) {
             let typeData = this.jsonAllTypeData[key];
-            this.saveJsonTypeFile(typeData, fullPath, zip)
+            this.saveJsonTypeFile(typeData, fullPath, zip, DirClientName)
           }
         }
 
@@ -218,8 +219,13 @@ export class Gen {
       if (this.isExportServer) {
         for (const key in this.jsonAllServerData) {
           const data = this.jsonAllServerData[key];
-          const fullPath = join(this.jsonSavePath, isExportTwo ? DirServerName : "", `${key}.json`);
+          const fullPath = join(this.jsonSavePath, this.isExportTwo ? DirServerName : "", `${key}.json`);
           this.saveJsonFile(data, fullPath, zip);
+
+          if (this.exportJsonType) {
+            let typeData = this.jsonAllTypeData[key];
+            this.saveJsonTypeFile(typeData, fullPath, zip, DirServerName)
+          }
         }
       }
     }
@@ -255,9 +261,9 @@ export class Gen {
     }
   }
 
-  private saveJsonTypeFile(data: any, path: string, zip: null | jszip) {
+  private saveJsonTypeFile(data: any, path: string, zip: null | jszip, key: string) {
     const typeName = basename(path);
-    const fullPath = join(this.tsSavePath, DirClientName, `${typeName.split(".")[0]}.ts`);
+    const fullPath = join(this.tsSavePath, this.isExportTwo ? key : "", `${typeName.split(".")[0]}.ts`);
     // 如果不存在目录 需要创建目录
     if (!existsSync(dirname(fullPath))) {
       mkdirSync(dirname(fullPath));
