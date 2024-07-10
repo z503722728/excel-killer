@@ -287,6 +287,7 @@ export class Gen {
       const saveLineData = { server: {}, client: {} };
       for (let idx = 0; idx < title.length; idx++) {
         const key = title[idx];
+        if(!key || !ruleText[idx]) continue;
         const rule = ruleText[idx].trim();
         if (key === "Empty" || rule === "Empty") {
           continue;
@@ -294,7 +295,7 @@ export class Gen {
 
         let value = lineData[idx] || "";
         if (value) {
-          // value = this.cutString(rule, value);
+          value = this.cutString(rule, value);
         }
         if (this.isClientField(target[idx])) {
           saveLineData.client[key] = value;
@@ -329,7 +330,6 @@ export class Gen {
    */
   cutString(rule: string, text: string) {
     let result = null;
-
     if (typeof text == "string") {
       text = text.trim();
       text = text.replace(/\n|\r/g, "");
@@ -340,7 +340,6 @@ export class Gen {
         text = text.slice(1, text.length);
       }
     }
-
     // {1,2};{3,4}
     // {1,[2;3]};{4,[5,6]}
     // {1,2,[String;String]};{3,4,[String;String]}
@@ -480,7 +479,8 @@ export class Gen {
         const json = JSON.parse(newText);
         result.push(json);
       }
-    } else if (rule.search(/Object\{[a-zA-Z0-9\[\]:,"]*\}/) === 0) {
+    }
+    else if (rule.search(/Object\{[a-zA-Z0-9\[\]:,"]*\}/) === 0) {
       result = {};
 
       if (rule.search(/String/) != -1) {
@@ -533,13 +533,47 @@ export class Gen {
       }
     }
     // 1
-    else if (rule.search("Number") === 0) {
+    else if (rule.search("Number") === 0 || rule.search("int") === 0) {
       result = Number(text);
     }
     // String
-    else if (rule.search("String") === 0) {
+    else if (rule.search("String") === 0 || rule.search("string") === 0) {
       result = text;
     }
+    // 数字 数组 等
+    else if (rule.search("\\[]int") != -1) {
+      // 可能为1,1 {1,1,1,20} 0|110|0 {{101,5},{102,5}} {{{101,50,0}},{{102,50,500}}} 等
+      const dimensions = (rule.match(/\[/g) || []).length; // 计算维度
+
+      if (dimensions === 1) {
+        result = text.toString().split(/[|,{}]/).filter(Boolean).map(Number);
+      } else if (dimensions === 2) {
+        result = text.split(/[{}]/).filter(Boolean).map(item => item.split(",").map(Number));
+      } else if (dimensions === 3) {
+        result = text.split("},").map(item =>
+          item.split(/[{}]/).filter(Boolean).map(arr =>
+            arr.split(",").map(Number)
+          )
+        );
+      }
+    }
+    // 字符串 数组 等
+    else if (rule.search("\\[]string") != -1) {
+      const dimensions = (rule.match(/\[/g) || []).length; // 计算维度
+
+      if (dimensions === 1) {
+        result = text.split(/[{}]/).filter(Boolean).map(item => item.split(/[,|]/));
+      } else if (dimensions === 2) {
+        result = text.split(/[{}]/).filter(Boolean).map(item => item.split(","));
+      } else if (dimensions === 3) {
+        result = text.split("},").map(item =>
+          item.split(/[{}]/).filter(Boolean).map(arr =>
+            arr.split(",")
+          )
+        );
+      }
+    }
+
 
     return result;
   }
