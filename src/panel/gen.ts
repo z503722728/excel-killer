@@ -208,11 +208,6 @@ export class Gen {
           const fullPath = join(this.jsonSavePath, this.isExportTwo ? DirClientName : "", `${key}.json`);
           const data = this.jsonAllClientData[key];
           this.saveJsonFile(data, fullPath, zip);
-
-          if (this.exportJsonType) {
-            let typeData = this.jsonAllTypeData[key];
-            this.saveJsonTypeFile(typeData, fullPath, zip, DirClientName)
-          }
         }
 
       }
@@ -221,15 +216,54 @@ export class Gen {
           const data = this.jsonAllServerData[key];
           const fullPath = join(this.jsonSavePath, this.isExportTwo ? DirServerName : "", `${key}.json`);
           this.saveJsonFile(data, fullPath, zip);
+        }
+      }
+    }
 
-          if (this.exportJsonType) {
-            let typeData = this.jsonAllTypeData[key];
-            this.saveJsonTypeFile(typeData, fullPath, zip, DirServerName)
-          }
+    if (this.exportJsonType) {
+      if (this.isExportClient) {
+        const fullPath = join(this.tsSavePath, this.isExportTwo ? DirClientName : "");
+        this.check2CreateConfigBase(fullPath);
+        for (const key in this.jsonAllClientData) {
+          const fullPath = join(this.jsonSavePath, this.isExportTwo ? DirClientName : "", `${key}.json`);
+          let typeData = this.jsonAllTypeData[key];
+          this.saveJsonTypeFile(typeData, fullPath, zip, DirClientName);
+        }
+
+      }
+      if (this.isExportServer) {
+        const fullPath = join(this.tsSavePath, this.isExportTwo ? DirServerName : "");
+        this.check2CreateConfigBase(fullPath);
+        for (const key in this.jsonAllServerData) {
+          const fullPath = join(this.jsonSavePath, this.isExportTwo ? DirServerName : "", `${key}.json`);
+          let typeData = this.jsonAllTypeData[key];
+          this.saveJsonTypeFile(typeData, fullPath, zip, DirServerName);
         }
       }
     }
   }
+
+  private check2CreateConfigBase(path: string) {
+    const configPath = join(path, 'ConfigBase.ts');
+    if (existsSync(configPath)) return;
+    const ClsStr = `export default abstract class ConfigBase {
+  // 自动初始化数据
+  init(data: any) {
+      if (data && typeof data === 'object') {
+          Object.keys(data).forEach(key => {
+              if (this.hasOwnProperty(key)) {
+                  (this as any)[key] = data[key];
+              }
+          });
+      }
+  }
+}`;
+    if (!existsSync(dirname(configPath))) {
+      mkdirSync(dirname(configPath));
+    }
+    writeFileSync(configPath, ClsStr);
+  }
+
   private exportJavaScript(zip: null | jszip) {
     if (!this.isExportJs) {
       return;
@@ -264,10 +298,10 @@ export class Gen {
   private saveJsonTypeFile(data: any, path: string, zip: null | jszip, key: string) {
     const typeName = basename(path);
     const fullPath = join(this.tsSavePath, this.isExportTwo ? key : "", `${typeName.split(".")[0]}.ts`);
-    // 如果不存在目录 需要创建目录
-    if (!existsSync(dirname(fullPath))) {
-      mkdirSync(dirname(fullPath));
-    }
+    // // 如果不存在目录 需要创建目录
+    // if (!existsSync(dirname(fullPath))) {
+    //   mkdirSync(dirname(fullPath));
+    // }
     writeFileSync(fullPath, data);
     console.log("[TypeScript]:" + fullPath);
     zip && zip.file(fullPath, data);
@@ -275,11 +309,11 @@ export class Gen {
 
   private getTypeScriptType(rule: string): string {
     if (rule.search(/^(int|number)$/i) !== -1) {
-      return 'number';
+      return 'number = 0';
     } else if (rule.search(/^(string)$/i) !== -1) {
-      return 'string';
+      return 'string = ""';
     } else if (rule.search(/^(bool|boolean)$/i) !== -1) {
-      return 'boolean';
+      return 'boolean = false';
     } else if (rule.search(/^(object)$/i) !== -1) {
       return 'object';
     } else if (rule.search(/^(any)$/i) !== -1) {
@@ -364,10 +398,14 @@ export class Gen {
       const comment = desc[i];
       const rule = ruleText[i];
       if (key && rule) {
-        typeLines.push(`  /** ${comment} */\n  ${key}?: ${this.getTypeScriptType(rule)};`);
+        let type = this.getTypeScriptType(rule);
+        let hasDefaultValue = type.indexOf('=') !== -1;
+        typeLines.push(`  /** ${comment} */\n  ${key}${hasDefaultValue ? "" : "?"}: ${type};`);
       }
     }
-    ret.types = `export interface I${itemSheet.name.split(".")[0]} {\n${typeLines.join('\n')}\n}\n\n`;
+    ret.types = `import ConfigBase from "./ConfigBase";\n
+export default class ${itemSheet.name.split(".")[0]} extends ConfigBase {
+${typeLines.join('\n')}\n}`;
 
     for (let line = 4; line < excelData.length; line++) {
       const lineData = excelData[line];
