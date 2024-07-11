@@ -334,9 +334,11 @@ export class Gen {
       return `{${keyTypes.join('; ')}}`;
     } else if (rule.search(/\[]int/) !== -1) {
       const dimensions = (rule.match(/\[/g) || []).length;
+      if (dimensions == 0) return 'number = 0';
       return `number${new Array(dimensions).fill('[]').join('')}`;
     } else if (rule.search(/\[]string/) !== -1) {
       const dimensions = (rule.match(/\[/g) || []).length;
+      if (dimensions == 0) return 'string = ""';
       return `string${new Array(dimensions).fill('[]').join('')}`;
     } else {
       return 'any';
