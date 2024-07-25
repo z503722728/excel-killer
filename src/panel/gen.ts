@@ -406,7 +406,7 @@ export class Gen {
       }
     }
     ret.types = `import ConfigBase from "./ConfigBase";\n
-export default class ${itemSheet.name.split(".")[0]} extends ConfigBase {
+export default class ${itemSheet.sheet.split(".")[0]} extends ConfigBase {
 ${typeLines.join('\n')}\n}`;
 
     for (let line = 4; line < excelData.length; line++) {
