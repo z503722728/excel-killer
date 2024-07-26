@@ -694,13 +694,13 @@ ${typeLines.join('\n')}\n}`;
       if (dimensions === 1) {
         result = text.split(/[|,{}]/).filter(Boolean).map(Number);
       } else if (dimensions === 2) {
-        result = text.split(/[{}]/).filter(Boolean).map(item => item.split(",").map(Number));
+        result = text.split(/[{}]/).filter(value => value && value != ",").map(item => item.split(",").map(Number));
       } else if (dimensions === 3) {
-        result = text.split("},").map(item =>
-          item.split(/[{}]/).filter(Boolean).map(arr =>
-            arr.split(",").map(Number)
-          )
-        );
+        result = text.split(/}},\s*{{/).map(item => {
+          return item.split(/},\s*{/).map(subItem => {
+            return subItem.replace(/[{}]/g, '').split(',').map(Number);
+          });
+        });
       }
     }
     // 字符串 数组 等
@@ -710,13 +710,13 @@ ${typeLines.join('\n')}\n}`;
       if (dimensions === 1) {
         result = text.split(/[{}]/).filter(Boolean).map(item => item.split(/[,|]/));
       } else if (dimensions === 2) {
-        result = text.split(/[{}]/).filter(Boolean).map(item => item.split(","));
+        result = text.split(/[{}]/).filter(value => value && value != ",").map(item => item.split(","));
       } else if (dimensions === 3) {
-        result = text.split("},").map(item =>
-          item.split(/[{}]/).filter(Boolean).map(arr =>
-            arr.split(",")
-          )
-        );
+        result = text.split(/}},\s*{{/).map(item => {
+          return item.split(/},\s*{/).map(subItem => {
+            return subItem.replace(/[{}]/g, '').split(',');
+          });
+        });
       }
     }
 
