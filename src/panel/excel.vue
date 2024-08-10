@@ -40,7 +40,7 @@ import CCP from "cc-plugin/src/ccp/entry-main";
 import { appStore } from "./store";
 import { ItemData, emitter, Msg } from "./const";
 import { existsSync, readFileSync, readdirSync, statSync } from "fs";
-import { basename, extname, join } from "path";
+import { basename, extname, join, resolve } from "path";
 import nodeXlsx from "node-xlsx";
 
 const { CCInput, CCButton, CCProp, CCSection, CCCheckBox } = ccui.components;
@@ -99,8 +99,18 @@ export default defineComponent({
         ccui.footbar.showError(e.message);
       }
     }
+
+    function resolvePath(basePath: string, relativePath: string): string {
+      return relativePath.startsWith('../') || relativePath.startsWith('./')
+        ? resolve(basePath, relativePath)
+        : relativePath;
+    }
     // 查找出目录下的所有excel文件
     async function onAnalyzeExcelDirPath(dir: string) {
+      const basePath = __dirname;
+      console.log("dir:", dir);
+      dir = resolvePath(basePath, dir);
+      console.log("dir:", dir);
       excelFileArr.value.length = 0;
       excelArray.value.length = 0;
       if (!dir || !existsSync(dir)) {

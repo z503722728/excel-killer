@@ -1,5 +1,5 @@
 import { emptyDirSync, existsSync, mkdirSync, writeFileSync } from "fs-extra";
-import { basename, dirname, join } from "path";
+import { basename, dirname, join, resolve } from "path";
 import { ConfigData, DirClientName, DirServerName, ItemData } from "./const";
 import CCP from "cc-plugin/src/ccp/entry-render";
 import jszip from "jszip";
@@ -25,6 +25,13 @@ export class Gen {
   private _addLog(log: string) {
     throw new Error(log);
   }
+
+  resolvePath(basePath: string, relativePath: string): string {
+    return relativePath.startsWith('../') || relativePath.startsWith('./')
+      ? resolve(basePath, relativePath)
+      : relativePath;
+  }
+
   public ready(cfg: ConfigData) {
     this.isMergeJson = cfg.json_merge;
     this.isMergeTs = cfg.ts_merge;
@@ -42,9 +49,10 @@ export class Gen {
     this.isExportJs = cfg.exportJs;
     this.isExportTs = cfg.exportTs;
 
-    this.jsSavePath = cfg.js_save_path;
-    this.jsonSavePath = cfg.json_save_path;
-    this.tsSavePath = cfg.ts_save_path;
+    const basePath = __dirname;
+    this.jsSavePath = this.resolvePath(basePath, cfg.js_save_path);
+    this.jsonSavePath = this.resolvePath(basePath, cfg.json_save_path);
+    this.tsSavePath = this.resolvePath(basePath, cfg.ts_save_path);
 
     this.isFormatJsCode = cfg.js_format;
     this.isFormatJson = cfg.json_format;

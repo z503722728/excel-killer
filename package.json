@@ -25,5 +25,8 @@
     "ccp-serve-v3": "cc-plugin serve cp-v3",
     "ccp-serve-web": "cc-plugin serve web"
   },
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "dependencies": {
+    "yarn": "^1.22.22"
+  }
 }

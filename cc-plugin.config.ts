@@ -46,7 +46,7 @@ const options: CocosPluginOptions = {
   watchBuild: true,
   outputProject: {
     web: "./web",
-    v3: "F:\\UProjects\\YHZD_MiniGame\\extensions\\excel-killer",
+    v3: "D:\\UGit\\YHZD_MiniGame\\extensions\\excel-killer",
   },
 };
 export default { manifest, options };
