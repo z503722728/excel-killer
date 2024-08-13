@@ -98,7 +98,7 @@ export class Gen {
    * 保存客户端的json数据
    */
   private jsonAllClientData = {};
-  private jsonAllTypeData = {};
+  private jsonAllClientTypeData = {};
   /**
    * 保存服务端的json数据
    * @example
@@ -111,6 +111,7 @@ export class Gen {
    * ```
    */
   private jsonAllServerData = {};
+  private jsonAllServeTypeData = {};
 
   async doWork(data: ItemData[]): Promise<void> {
     // 删除老的配置
@@ -234,7 +235,7 @@ export class Gen {
         this.check2CreateConfigBase(fullPath);
         for (const key in this.jsonAllClientData) {
           const fullPath = join(this.jsonSavePath, this.isExportTwo ? DirClientName : "", `${key}.json`);
-          let typeData = this.jsonAllTypeData[key];
+          let typeData = this.jsonAllClientTypeData[key];
           this.saveJsonTypeFile(typeData, fullPath, zip, DirClientName);
         }
 
@@ -244,7 +245,7 @@ export class Gen {
         this.check2CreateConfigBase(fullPath);
         for (const key in this.jsonAllServerData) {
           const fullPath = join(this.jsonSavePath, this.isExportTwo ? DirServerName : "", `${key}.json`);
-          let typeData = this.jsonAllTypeData[key];
+          let typeData = this.jsonAllServeTypeData[key];
           this.saveJsonTypeFile(typeData, fullPath, zip, DirServerName);
         }
       }
@@ -369,21 +370,21 @@ export class Gen {
     return match ? match[1] : 'any';
   }
 
-  private flushExcelData(itemSheet: ItemData, all: any, data: any, types: string) {
+  private flushExcelData(itemSheet: ItemData, all: any, data: any, allType: any, types: string) {
     const { sheet, name } = itemSheet;
     if (Object.keys(data).length > 0) {
       if (all[sheet] === undefined) {
         all[sheet] = data;
-        this.jsonAllTypeData[sheet] = types;
+        allType[sheet] = types;
       } else {
         throw new Error(`发现重名sheet: ${name}:${sheet}`);
       }
     }
   }
   private parseExcelData(itemSheet: ItemData) {
-    const { client, server, types } = this.splitData(itemSheet);
-    this.flushExcelData(itemSheet, this.jsonAllClientData, client, types);
-    this.flushExcelData(itemSheet, this.jsonAllServerData, server, types);
+    const { client, server, typeC, typeS } = this.splitData(itemSheet);
+    this.flushExcelData(itemSheet, this.jsonAllClientData, client, this.jsonAllClientTypeData, typeC);
+    this.flushExcelData(itemSheet, this.jsonAllServerData, server, this.jsonAllServeTypeData, typeS);
   }
 
   private isServerField(str: string) {
@@ -392,7 +393,7 @@ export class Gen {
   private isClientField(str: string) {
     return str.indexOf("c") !== -1;
   }
-  private splitData(itemSheet: ItemData): { server: any; client: any, types: string } {
+  private splitData(itemSheet: ItemData): { server: any; client: any, typeC: string, typeS: string } {
     const excelData: any[][] = itemSheet.buffer;
     const title = excelData[0];
     const desc = excelData[1];
@@ -401,21 +402,31 @@ export class Gen {
      */
     const target = excelData[2];
     const ruleText = excelData[3];
-    const ret = { server: {}, client: {}, types: '' };
-    const typeLines: string[] = [];
+    const ret = { server: {}, client: {}, typeC: '', typeS: '' };
+    const typeLinesC: string[] = [];
+    const typeLinesS: string[] = [];
     for (let i = 0; i < title.length; i++) {
       const key = title[i];
       const comment = desc[i];
       const rule = ruleText[i];
+      const tar = target[i];
       if (key && rule) {
         let type = this.getTypeScriptType(rule);
         let hasDefaultValue = type.indexOf('=') !== -1;
-        typeLines.push(`  /** ${comment} */\n  ${key}${hasDefaultValue ? "" : "?"}: ${type};`);
+        if (tar.indexOf("c") != -1) {
+          typeLinesC.push(`  /** ${comment} */\n  ${key}${hasDefaultValue ? "" : "?"}: ${type};`);
+        }
+        if (tar.indexOf("s") != -1) {
+          typeLinesS.push(`  /** ${comment} */\n  ${key}${hasDefaultValue ? "" : "?"}: ${type};`);
+        }
       }
     }
-    ret.types = `import ConfigBase from "./ConfigBase";\n
+    ret.typeC = `import ConfigBase from "./ConfigBase";\n
 export default class ${itemSheet.sheet.split(".")[0]} extends ConfigBase {
-${typeLines.join('\n')}\n}`;
+${typeLinesC.join('\n')}\n}`;
+    ret.typeS = `import ConfigBase from "./ConfigBase";\n
+export default class ${itemSheet.sheet.split(".")[0]} extends ConfigBase {
+${typeLinesS.join('\n')}\n}`;
 
     for (let line = 4; line < excelData.length; line++) {
       const lineData = excelData[line];
